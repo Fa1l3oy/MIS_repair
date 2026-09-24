@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import type { Response } from 'express';
 import { Prisma } from '../../generated/prisma/client';
-import { ApiError, type ErrorCode } from './api-error';
+import { ApiError, HTTP_STATUS, type ErrorCode } from './api-error';
 
 const STATUS_TO_CODE: Record<number, ErrorCode> = {
   400: 'BAD_REQUEST',
@@ -22,6 +22,17 @@ const DEFAULT_MESSAGE: Record<ErrorCode, string> = {
   CONFLICT: 'ข้อมูลถูกแก้ไขโดยผู้ใช้อื่นแล้ว กรุณารีเฟรชและลองใหม่',
   INTERNAL_ERROR: 'ระบบขัดข้องชั่วคราว กรุณาลองอีกครั้ง',
 };
+
+/** ข้อความของ multer (ตอนรับไฟล์แนบ) → ข้อความที่ผู้ใช้เข้าใจ */
+const UPLOAD_ERRORS: [RegExp, string][] = [
+  [/^File too large/i, 'รูปแต่ละไฟล์ต้องมีขนาดไม่เกิน 8 MB'],
+  [/^Too many files/i, 'แนบรูปได้ครั้งละไม่เกิน 5 รูป'],
+  [/^Unexpected field/i, 'แนบรูปได้เฉพาะในช่อง photos'],
+  [
+    /^(Too many fields|Field value too long|Field name too long|Too many parts)/i,
+    'ข้อมูลในฟอร์มยาวเกินกำหนด',
+  ],
+];
 
 type Described = { status: number; code: ErrorCode; message: string; details?: string[] };
 
@@ -59,12 +70,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     }
     if (exception instanceof HttpException) {
-      const status = exception.getStatus();
-      const code = STATUS_TO_CODE[status] ?? (status >= 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
+      const raw = exception.getStatus();
+      const upload = UPLOAD_ERRORS.find(([pattern]) => pattern.test(exception.message));
+      if (upload) return { status: 400, code: 'VALIDATION_ERROR', message: upload[1] };
+
+      const code = STATUS_TO_CODE[raw] ?? (raw >= 500 ? 'INTERNAL_ERROR' : 'BAD_REQUEST');
       // ข้อความของ Nest/Express เป็นภาษาอังกฤษภายใน จึงใช้ข้อความมาตรฐานภาษาไทยแทน
+      // และใช้ HTTP status ตามตาราง code เสมอ (เช่น 413 → VALIDATION_ERROR ต้องเป็น 400)
       const message =
-        status === HttpStatus.PAYLOAD_TOO_LARGE ? 'ไฟล์มีขนาดใหญ่เกินกำหนด' : DEFAULT_MESSAGE[code];
-      return { status: status === 405 ? 404 : status, code, message };
+        raw === HttpStatus.PAYLOAD_TOO_LARGE ? 'ข้อมูลหรือไฟล์มีขนาดใหญ่เกินกำหนด' : DEFAULT_MESSAGE[code];
+      return { status: HTTP_STATUS[code], code, message };
     }
     this.logger.error(exception instanceof Error ? exception.stack : String(exception));
     return { status: 500, code: 'INTERNAL_ERROR', message: DEFAULT_MESSAGE.INTERNAL_ERROR };
