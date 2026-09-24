@@ -1,0 +1,69 @@
+# csmju-repair — ฐานข้อมูลของระบบนี้ (repair_db) + backend/frontend แบบ container
+#
+#   docker compose up -d db                 # เฉพาะฐานข้อมูล (พัฒนาในเครื่องด้วย pnpm dev:*)
+#   docker compose --profile app up -d      # รันทั้งระบบใน container
+#
+# Core Hub ไม่อยู่ในไฟล์นี้ — เป็นระบบกลางที่รันแยก (ค่าเริ่มต้นชี้ไปที่เครื่อง host :3000)
+name: csmju-repair
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: repair_db
+    ports:
+      - '5434:5432'
+    volumes:
+      - repair_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d repair_db']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/repair_db
+      CORE_HUB_URL: ${CORE_HUB_URL:-http://host.docker.internal:3000}
+      CORE_HUB_JWKS_URL: ${CORE_HUB_JWKS_URL:-http://host.docker.internal:3000/api/v1/.well-known/jwks.json}
+      CORE_HUB_ISSUER: core-hub
+      CORE_HUB_AUDIENCE: csmju2030
+      SUBSYSTEM_ID: csmju-repair
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3102}
+      UPLOAD_DIR: /data/uploads
+    ports:
+      - '3002:3002'
+    volumes:
+      - repair_uploads:/data/uploads
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_CORE_HUB_URL: ${NEXT_PUBLIC_CORE_HUB_URL:-http://localhost:3000}
+        NEXT_PUBLIC_SUBSYSTEM_ID: csmju-repair
+    environment:
+      BACKEND_URL: http://backend:3002
+    ports:
+      - '3102:3102'
+    depends_on:
+      - backend
+
+volumes:
+  repair_db_data:
+  repair_uploads:
