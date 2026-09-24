@@ -129,7 +129,7 @@ export function QrTagManager({
                 <th scope="col" className={thClass}>
                   รหัส
                 </th>
-                <th scope="col" className={thClass}>
+                <th scope="col" className={`${thClass} min-w-72`}>
                   สถานที่ / อุปกรณ์
                 </th>
                 <th scope="col" className={thClass}>

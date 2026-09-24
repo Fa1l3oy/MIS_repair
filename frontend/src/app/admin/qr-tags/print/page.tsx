@@ -44,7 +44,9 @@ export default async function PrintQrTagsPage(props: PageProps<'/admin/qr-tags/p
               key={tag.id}
               className="print-sheet flex break-inside-avoid items-center gap-4 rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-lowest p-4"
             >
-              <OriginQrCode path={`/q/${tag.code}`} size={132} label={`QR แจ้งซ่อม ${tag.location}`} />
+              <div className="shrink-0">
+                <OriginQrCode path={`/q/${tag.code}`} size={132} label={`QR แจ้งซ่อม ${tag.location}`} />
+              </div>
               <div className="min-w-0 space-y-1">
                 <p className="font-display text-headline-md text-primary-container">แจ้งซ่อม</p>
                 <p className="text-body-md text-on-surface">สแกนด้วยกล้องมือถือ</p>
