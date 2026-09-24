@@ -39,6 +39,24 @@ export interface paths {
     patch: operations['Me_update'];
     trace?: never;
   };
+  '/api/v1/me/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** เปลี่ยนรูปโปรไฟล์ของตัวเอง (JPG · PNG · WebP ไม่เกิน 2 MB ในช่อง avatar) */
+    post: operations['Me_uploadAvatar'];
+    /** ลบรูปโปรไฟล์ของตัวเอง (กลับไปใช้อักษรย่อ) */
+    delete: operations['Me_removeAvatar'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/profiles': {
     parameters: {
       query?: never;
@@ -48,6 +66,23 @@ export interface paths {
     };
     /** ผู้ใช้ที่เคยเข้าระบบนี้ */
     get: operations['Profiles_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/profiles/{id}/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** รูปโปรไฟล์ (image/jpeg · image/png · image/webp) */
+    get: operations['Profiles_avatar'];
     put?: never;
     post?: never;
     delete?: never;
@@ -71,6 +106,23 @@ export interface paths {
     head?: never;
     /** แต่งตั้ง/ถอดถอนช่างซ่อมบำรุง */
     patch: operations['Profiles_update'];
+    trace?: never;
+  };
+  '/api/v1/repair-images/{id}/file': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** ไฟล์รูปงานซ่อม (image/jpeg · image/png · image/webp) */
+    get: operations['RepairImages_file'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/buildings': {
@@ -320,23 +372,6 @@ export interface paths {
     patch: operations['Notifications_update'];
     trace?: never;
   };
-  '/api/v1/repair-images/{id}/file': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** ไฟล์รูปงานซ่อม (image/jpeg · image/png · image/webp) */
-    get: operations['RepairImages_file'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/api/v1/qr-tags': {
     parameters: {
       query?: never;
@@ -455,6 +490,8 @@ export interface components {
       hasDisplayName: boolean;
       phone: string | null;
       workUnit: string | null;
+      /** @description รูปโปรไฟล์ (GET ได้เมื่อเข้าสู่ระบบแล้ว) · null = ยังไม่มีรูป ให้แสดงอักษรย่อแทน */
+      avatarUrl: string | null;
       /**
        * Format: date-time
        * @description token หมดอายุเมื่อไร — ต้องเข้าผ่าน Core Hub ใหม่หลังจากนี้
@@ -471,6 +508,12 @@ export interface components {
       phone?: string;
       /** @description ห้อง/หน่วยงานที่ติดต่อได้ · ส่ง "" เพื่อล้างค่า */
       workUnit?: string;
+    };
+    DeletedDto: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {boolean} */
+      deleted: true;
     };
     ProfileDto: {
       /**
@@ -499,6 +542,8 @@ export interface components {
       phone: string | null;
       /** @example งานอาคารสถานที่ */
       workUnit: string | null;
+      /** @description รูปโปรไฟล์ (GET ได้เมื่อเข้าสู่ระบบแล้ว) · null = ยังไม่มีรูป ให้แสดงอักษรย่อแทน */
+      avatarUrl: string | null;
       /** Format: date-time */
       lastSeenAt: string | null;
       /** Format: date-time */
@@ -555,12 +600,6 @@ export interface components {
       /** @description null = ล้างรหัส */
       code?: string | null;
       isActive?: boolean;
-    };
-    DeletedDto: {
-      /** Format: uuid */
-      id: string;
-      /** @enum {boolean} */
-      deleted: true;
     };
     CategoryDto: {
       /** Format: uuid */
@@ -638,6 +677,8 @@ export interface components {
       email: string;
       phone: string | null;
       workUnit: string | null;
+      /** @description รูปโปรไฟล์ (GET ได้เมื่อเข้าสู่ระบบแล้ว) · null = ยังไม่มีรูป ให้แสดงอักษรย่อแทน */
+      avatarUrl: string | null;
     };
     /** @enum {string} */
     SlaState: 'ON_TRACK' | 'AT_RISK' | 'OVERDUE' | 'MET' | 'MISSED' | 'CLOSED';
@@ -1101,6 +1142,131 @@ export interface operations {
       };
     };
   };
+  Me_uploadAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          avatar: string;
+        };
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** @enum {boolean} */
+            success: true;
+            data: components['schemas']['MeDto'];
+          };
+        };
+      };
+      /** @description BAD_REQUEST / VALIDATION_ERROR */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description FORBIDDEN — สิทธิ์ไม่พอ */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description CONFLICT — ชนกฎธุรกิจ */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+    };
+  };
+  Me_removeAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': {
+            /** @enum {boolean} */
+            success: true;
+            data: components['schemas']['DeletedDto'];
+          };
+        };
+      };
+      /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description FORBIDDEN — สิทธิ์ไม่พอ */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description NOT_FOUND */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description CONFLICT — ชนกฎธุรกิจ */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+    };
+  };
   Profiles_list: {
     parameters: {
       query?: {
@@ -1154,6 +1320,63 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+    };
+  };
+  Profiles_avatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description ไฟล์รูป */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': string;
+          'image/png': string;
+          'image/webp': string;
+        };
+      };
+      /** @description BAD_REQUEST / VALIDATION_ERROR */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description NOT_FOUND */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
         };
       };
     };
@@ -1228,6 +1451,74 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+    };
+  };
+  RepairImages_file: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description ไฟล์รูป */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': string;
+          'image/png': string;
+          'image/webp': string;
+        };
+      };
+      /** @description BAD_REQUEST / VALIDATION_ERROR */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description FORBIDDEN — สิทธิ์ไม่พอ */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
+        };
+      };
+      /** @description NOT_FOUND */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
+          'image/png': components['schemas']['ErrorEnvelopeDto'];
+          'image/webp': components['schemas']['ErrorEnvelopeDto'];
         };
       };
     };
@@ -2769,74 +3060,6 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ErrorEnvelopeDto'];
-        };
-      };
-    };
-  };
-  RepairImages_file: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description ไฟล์รูป */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': string;
-          'image/png': string;
-          'image/webp': string;
-        };
-      };
-      /** @description BAD_REQUEST / VALIDATION_ERROR */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
-          'image/png': components['schemas']['ErrorEnvelopeDto'];
-          'image/webp': components['schemas']['ErrorEnvelopeDto'];
-        };
-      };
-      /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
-          'image/png': components['schemas']['ErrorEnvelopeDto'];
-          'image/webp': components['schemas']['ErrorEnvelopeDto'];
-        };
-      };
-      /** @description FORBIDDEN — สิทธิ์ไม่พอ */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
-          'image/png': components['schemas']['ErrorEnvelopeDto'];
-          'image/webp': components['schemas']['ErrorEnvelopeDto'];
-        };
-      };
-      /** @description NOT_FOUND */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'image/jpeg': components['schemas']['ErrorEnvelopeDto'];
-          'image/png': components['schemas']['ErrorEnvelopeDto'];
-          'image/webp': components['schemas']['ErrorEnvelopeDto'];
         };
       };
     };

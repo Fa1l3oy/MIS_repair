@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache, type ReactNode } from 'react';
 import {
+  Avatar,
   cardClass,
   cardHeaderClass,
   cardTitleClass,
@@ -222,8 +223,13 @@ function PersonCard({ title, person }: { title: string; person: Person }) {
   return (
     <section className={`${cardClass} p-6`}>
       <h2 className="text-label-md text-on-surface">{title}</h2>
-      <p className="mt-2 text-body-md font-semibold text-on-surface">{person.displayName}</p>
-      {person.workUnit ? <p className="text-body-md text-on-surface-variant">{person.workUnit}</p> : null}
+      <div className="mt-3 flex items-center gap-3">
+        <Avatar name={person.displayName} src={person.avatarUrl} size={48} />
+        <div className="min-w-0">
+          <p className="text-body-md font-semibold text-on-surface">{person.displayName}</p>
+          {person.workUnit ? <p className="text-body-md text-on-surface-variant">{person.workUnit}</p> : null}
+        </div>
+      </div>
       <ul className="mt-3 space-y-2">
         {person.phone ? (
           <li>

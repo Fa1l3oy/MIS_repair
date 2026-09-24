@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { cardClass, cardHeaderClass, cardTitleClass, InfoIcon, PageHeader, StatusBadge } from '@/csmju';
+import { AvatarEditor } from '@/components/features/AvatarEditor';
 import { ProfileForm } from '@/components/features/ProfileForm';
 import { ApiFailure } from '@/components/shared/ApiFailure';
 import { CORE_HUB_URL } from '@/lib/config';
@@ -27,6 +28,9 @@ export default async function ProfilePage() {
             <h2 id="contact-title" className={cardTitleClass}>
               ข้อมูลติดต่อ
             </h2>
+          </div>
+          <div className="border-b border-outline-variant/40 p-6">
+            <AvatarEditor me={user} />
           </div>
           <div className="p-6">
             <ProfileForm me={user} />

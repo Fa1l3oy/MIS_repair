@@ -102,7 +102,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
         subsystemName={SUBSYSTEM_ID}
         displayName={DISPLAY_NAME}
         nav={navFor(user)}
-        user={{ displayName: user.displayName, email: user.email, roleLabel }}
+        user={{ displayName: user.displayName, email: user.email, roleLabel, avatarUrl: user.avatarUrl }}
         primaryAction={can(user, P.REQUEST_CREATE) ? { label: 'แจ้งซ่อม', href: '/requests/new' } : undefined}
         searchSlot={
           <CommandPalette canSeeAll={can(user, P.REQUEST_READ_ANY)} isAdmin={can(user, P.PROFILE_READ_ANY)} />

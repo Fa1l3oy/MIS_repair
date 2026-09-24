@@ -93,10 +93,12 @@ RESULT: 63 passed · 0 failed · 0 skipped
    โลโก้เป็นตัวแทน (เข้าถึง `csmju-core-hub/frontend/public/csmju-logo.png` ไม่ได้)
 4. **ข้อขัดกันใน ui-design-system.md ข้อ 16.1.2** — ข้อ 5 (JSON เป็น snake_case) และข้อ 6 (อ่านผู้ใช้จาก header `X-User-Id` ของ gateway)
    ขัดกับ `api-conventions.md` / `auth-contract.md` และ conformance → ทำตามสองเอกสารหลัง (JSON camelCase, ตรวจ JWT เองด้วย JWKS)
-5. **endpoint ไฟล์รูป** `GET /api/v1/repair-images/:id/file` ตอบเป็นไฟล์ภาพ ไม่ใช่ envelope JSON (ใช้กับ `<img>` ได้ตรง ๆ) — ข้อยกเว้นเดียว
+5. **endpoint ไฟล์รูป** `GET /api/v1/repair-images/:id/file` และ `GET /api/v1/profiles/:id/avatar` ตอบเป็นไฟล์ภาพ ไม่ใช่ envelope JSON
+   (ใช้กับ `<img>` ได้ตรง ๆ) — ข้อยกเว้นเดียว (error ยังเป็น envelope ตามปกติ)
 6. **ออกจากระบบ** ไม่มี endpoint ในระบบนี้ — ปุ่มออกจากระบบพาไปที่ Core Hub (`NEXT_PUBLIC_CORE_HUB_LOGOUT_URL` หรือหน้าแรกของ portal)
-7. **ข้อมูลติดต่อเก็บในระบบนี้** (`display_name`, `phone`, `work_unit`) เพราะ Core Hub v1.0 ยังไม่มี (data-dictionary.md ข้อ 1.3) ·
-   ไม่เก็บรายชื่อคณะ · `email` / `core_role` เป็นสำเนาจาก token ที่ตรวจแล้ว
+7. **ข้อมูลติดต่อเก็บในระบบนี้** (`display_name`, `phone`, `work_unit`, รูปโปรไฟล์ `avatar_filename`) เพราะ Core Hub v1.0 ยังไม่มี
+   (data-dictionary.md ข้อ 1.3) · รูปโปรไฟล์ครอปเป็นสี่เหลี่ยม 512px ในเบราว์เซอร์ รับเฉพาะ JPG/PNG/WebP ≤ 2 MB (ตรวจ magic bytes)
+   ผู้ใช้ที่เข้าสู่ระบบแล้วดูรูปของกันได้ (ใช้ในใบแจ้งซ่อม) · ไม่เก็บรายชื่อคณะ · `email` / `core_role` เป็นสำเนาจาก token ที่ตรวจแล้ว
 8. **ช่าง** = บุคลากร (core role `staff`) ที่ผู้ดูแลแต่งตั้ง · ถอดได้เมื่อไม่มีงานค้าง (409)
 9. **รูปงานซ่อมเก็บบนดิสก์** (`UPLOAD_DIR`, volume ใน Docker) ไม่ใช่ object storage
 10. **QR** — whitelist ไม่มีไลบรารี QR จึงเขียน encoder เอง (byte mode, v1–40, L/M/Q/H) · ทดสอบด้วยตัวถอดรหัสที่เขียนแยก

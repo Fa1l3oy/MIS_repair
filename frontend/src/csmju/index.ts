@@ -5,6 +5,7 @@
 export { CsmjuAppShell } from './CsmjuAppShell';
 export { SIDEBAR_COOKIE } from './shell';
 export type { ShellIcon, ShellNavItem, ShellUser } from './CsmjuAppShell';
+export { Avatar } from './Avatar';
 export { CsmjuLogo } from './CsmjuLogo';
 export { ConfirmDeleteModal } from './ConfirmDeleteModal';
 export { Modal } from './Modal';

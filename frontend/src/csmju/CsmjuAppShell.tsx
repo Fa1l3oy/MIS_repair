@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { UNAUTHORIZED_EVENT } from '@/lib/api';
 import { CsmjuLogo } from './CsmjuLogo';
-import { initialsOf } from './initials';
+import { Avatar } from './Avatar';
 import * as Icons from './icons';
 import type { IconProps } from './icons';
 import { SIDEBAR_COOKIE } from './shell';
@@ -19,7 +19,7 @@ export type ShellNavItem = {
   icon: ShellIcon;
   exact?: boolean;
 };
-export type ShellUser = { displayName: string; email: string; roleLabel: string };
+export type ShellUser = { displayName: string; email: string; roleLabel: string; avatarUrl?: string | null };
 
 const ICONS = {
   dashboard: Icons.DashboardIcon,
@@ -399,7 +399,6 @@ function UserMenu({ user, homeHref, logoutHref }: { user: ShellUser; homeHref: s
   const wrapper = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
-  const initials = initialsOf(user.displayName);
 
   useEffect(() => {
     if (!open) return;
@@ -453,22 +452,12 @@ function UserMenu({ user, homeHref, logoutHref }: { user: ShellUser; homeHref: s
           open ? 'ring-4 ring-primary-container/15' : ''
         }`}
       >
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-container text-label-md text-white"
-        >
-          {initials}
-        </span>
+        <Avatar name={user.displayName} src={user.avatarUrl} size={36} />
       </button>
       {open ? (
         <div className="fade-slide-up absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-xl">
           <div className="flex items-center gap-3 border-b border-outline-variant/40 px-4 py-4">
-            <span
-              aria-hidden="true"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-container text-body-lg font-semibold text-white"
-            >
-              {initials}
-            </span>
+            <Avatar name={user.displayName} src={user.avatarUrl} size={48} />
             <div className="min-w-0">
               <p className="truncate text-label-md text-on-surface">{user.displayName}</p>
               <p className="truncate text-caption text-on-surface-variant">{user.email}</p>

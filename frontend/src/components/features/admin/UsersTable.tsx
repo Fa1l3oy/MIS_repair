@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { StatusBadge, tableClass, tbodyRowClass, tdClass, theadRowClass, thClass } from '@/csmju';
+import { Avatar, StatusBadge, tableClass, tbodyRowClass, tdClass, theadRowClass, thClass } from '@/csmju';
 import { useToast } from '@/components/shared/Toast';
 import { api } from '@/lib/api';
 import { formatPhone, formatRelative } from '@/lib/format';
@@ -88,13 +88,18 @@ export function UsersTable({ items, selfId }: { items: Profile[]; selfId: string
               return (
                 <tr key={profile.id} className={tbodyRowClass}>
                   <td className={tdClass}>
-                    <p className="font-medium text-on-surface">
-                      {profile.displayName}
-                      {profile.coreUserId === selfId ? (
-                        <span className="ml-2 text-caption text-secondary">(คุณ)</span>
-                      ) : null}
-                    </p>
-                    <p className="text-caption text-on-surface-variant">{profile.email}</p>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={profile.displayName} src={profile.avatarUrl} size={36} />
+                      <div className="min-w-0">
+                        <p className="font-medium text-on-surface">
+                          {profile.displayName}
+                          {profile.coreUserId === selfId ? (
+                            <span className="ml-2 text-caption text-secondary">(คุณ)</span>
+                          ) : null}
+                        </p>
+                        <p className="text-caption text-on-surface-variant">{profile.email}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className={`${tdClass} whitespace-nowrap`}>
                     {CORE_ROLE_LABEL[profile.coreRole] ?? profile.coreRole}
