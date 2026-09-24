@@ -4,8 +4,10 @@ import { AuthModule } from './auth/auth.module';
 import { BuildingsModule } from './buildings/buildings.module';
 import { CategoriesModule } from './categories/categories.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { QrTagsModule } from './qr-tags/qr-tags.module';
 import { RepairImagesModule } from './repair-images/repair-images.module';
 import { RepairRequestsModule } from './repair-requests/repair-requests.module';
+import { StatisticsModule } from './statistics/statistics.module';
 import { EnvelopeInterceptor } from './common/envelope.interceptor';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { createValidationPipe } from './common/validation';
@@ -23,6 +25,8 @@ import { PrismaModule } from './prisma/prisma.module';
     RepairRequestsModule,
     RepairImagesModule,
     NotificationsModule,
+    QrTagsModule,
+    StatisticsModule,
   ],
   controllers: [HealthController],
   providers: [
