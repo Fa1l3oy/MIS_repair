@@ -65,6 +65,13 @@ export function formatRelative(value: DateInput, now: Date = new Date()) {
   return `${Math.floor(hours / 24)} วันที่แล้ว`;
 }
 
+/** ภายใน 7 วัน "3 ชั่วโมงที่แล้ว · 24 ก.ย. 2569 09:30 น." · เก่ากว่านั้นแสดงวันเวลาอย่างเดียว */
+export function formatTimestamp(value: DateInput, now: Date = new Date()) {
+  const seconds = (now.getTime() - toDate(value).getTime()) / 1000;
+  const absolute = formatDateTime(value);
+  return seconds < 0 || seconds > 7 * 86_400 ? absolute : `${formatRelative(value, now)} · ${absolute}`;
+}
+
 export function formatNumber(value: number) {
   return numberFormat.format(value);
 }

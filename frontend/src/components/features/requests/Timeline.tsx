@@ -1,5 +1,5 @@
 import { AddIcon, ChatIcon, EditIcon, HistoryIcon, PersonIcon, StarIcon, SwapIcon } from '@/csmju';
-import { formatDateTime, formatRelative } from '@/lib/format';
+import { formatTimestamp } from '@/lib/format';
 import { STATUS_LABEL } from '@/lib/labels';
 import type { RequestActivity } from '@/lib/types';
 
@@ -51,11 +51,7 @@ export function Timeline({ activities }: { activities: RequestActivity[] }) {
             <div className="min-w-0 flex-1 space-y-1">
               <p className="text-body-md text-on-surface">{headline(activity)}</p>
               <p className="text-caption text-on-surface-variant">
-                <time dateTime={activity.createdAt} title={formatDateTime(activity.createdAt)}>
-                  {formatRelative(activity.createdAt)}
-                </time>
-                {' · '}
-                {formatDateTime(activity.createdAt)}
+                <time dateTime={activity.createdAt}>{formatTimestamp(activity.createdAt)}</time>
               </p>
               {activity.message ? (
                 <p

@@ -6,6 +6,7 @@ import {
   formatDuration,
   formatPhone,
   formatRelative,
+  formatTimestamp,
   placeText,
 } from './format';
 
@@ -24,6 +25,12 @@ describe('รูปแบบวันที่/ตัวเลขภาษาไ
     expect(formatRelative('2026-09-24T09:00:00Z', now)).toBe('3 ชั่วโมงที่แล้ว');
     expect(formatRelative('2026-09-22T12:00:00Z', now)).toBe('2 วันที่แล้ว');
     expect(formatRelative('2026-09-01T12:00:00Z', now)).toBe('1 ก.ย. 2569');
+  });
+
+  it('adds the exact time to recent timestamps without repeating the date', () => {
+    const now = new Date('2026-09-24T12:00:00Z');
+    expect(formatTimestamp('2026-09-24T09:00:00Z', now)).toBe('3 ชั่วโมงที่แล้ว · 24 ก.ย. 2569 16:00 น.');
+    expect(formatTimestamp('2026-05-05T05:21:00Z', now)).toBe('5 พ.ค. 2569 12:21 น.');
   });
 
   it('formats phone numbers, durations and floors', () => {
