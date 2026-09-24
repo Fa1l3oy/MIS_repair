@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { UNAUTHORIZED_EVENT } from '@/lib/api';
 import { CsmjuLogo } from './CsmjuLogo';
+import { initialsOf } from './initials';
 import * as Icons from './icons';
 import type { IconProps } from './icons';
 import { SIDEBAR_COOKIE } from './shell';
@@ -388,18 +389,30 @@ function ScrollArea({
   );
 }
 
+/**
+ * เมนูผู้ใช้บน top bar — แสดงแค่ avatar (ตามคำขอของเจ้าของระบบ) กดแล้วจึงเห็นชื่อ อีเมล บทบาท และเมนู
+ * คีย์บอร์ด: Enter/Space เปิด · ลูกศรขึ้น-ลง/Home/End เลือก · Esc ปิดแล้วโฟกัสกลับที่ avatar
+ */
 function UserMenu({ user, homeHref, logoutHref }: { user: ShellUser; homeHref: string; logoutHref: string }) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const wrapper = useRef<HTMLDivElement>(null);
-  const initials = user.displayName.trim().slice(0, 2).toUpperCase() || 'U';
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const initials = initialsOf(user.displayName);
 
   useEffect(() => {
     if (!open) return;
+    menu.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
     const onPointer = (event: PointerEvent) => {
       if (!wrapper.current?.contains(event.target as Node)) setOpen(false);
     };
-    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && setOpen(false);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setOpen(false);
+      trigger.current?.focus();
+    };
     document.addEventListener('pointerdown', onPointer);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -408,69 +421,88 @@ function UserMenu({ user, homeHref, logoutHref }: { user: ShellUser; homeHref: s
     };
   }, [open]);
 
+  const onMenuKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])];
+    const index = items.indexOf(document.activeElement as HTMLElement);
+    const focus = (next: number) => {
+      event.preventDefault();
+      items[(next + items.length) % items.length]?.focus();
+    };
+    if (event.key === 'ArrowDown') focus(index + 1);
+    else if (event.key === 'ArrowUp') focus(index - 1);
+    else if (event.key === 'Home') focus(0);
+    else if (event.key === 'End') focus(items.length - 1);
+    else if (event.key === 'Tab') setOpen(false);
+  };
+
+  const itemClass =
+    'flex min-h-11 items-center gap-3 px-4 text-body-md text-on-surface outline-offset-[-2px] transition-colors hover:bg-surface focus-visible:bg-surface';
+
   return (
     <div ref={wrapper} className="relative">
       <button
+        ref={trigger}
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        className="flex min-h-11 items-center gap-3 rounded-full py-1 pl-1 pr-1 transition-colors hover:bg-surface-variant/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container md:pr-3"
+        aria-label={`บัญชีผู้ใช้: ${user.displayName}`}
+        title={user.displayName}
+        className={`flex h-11 w-11 items-center justify-center rounded-full transition-shadow duration-150 hover:ring-4 hover:ring-primary-container/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container ${
+          open ? 'ring-4 ring-primary-container/15' : ''
+        }`}
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/50 bg-primary-container text-label-md text-white">
+        <span
+          aria-hidden="true"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-container text-label-md text-white"
+        >
           {initials}
         </span>
-        <span className="hidden text-left md:block">
-          <span className="block max-w-40 truncate text-label-md text-on-surface">{user.displayName}</span>
-          <span className="block text-caption text-on-surface-variant">{user.roleLabel}</span>
-        </span>
-        <Icons.ChevronDownIcon className="hidden h-4 w-4 text-outline md:block" />
       </button>
       {open ? (
-        <div
-          id={menuId}
-          role="menu"
-          className="fade-slide-up absolute right-0 top-full z-40 mt-2 w-64 overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-xl"
-        >
-          <div className="border-b border-outline-variant/40 px-4 py-3">
-            <p className="truncate text-label-md text-on-surface">{user.displayName}</p>
-            <p className="truncate text-caption text-on-surface-variant">{user.email}</p>
-            <p className="mt-1 text-caption text-primary-container">{user.roleLabel}</p>
+        <div className="fade-slide-up absolute right-0 top-full z-40 mt-2 w-72 overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-xl">
+          <div className="flex items-center gap-3 border-b border-outline-variant/40 px-4 py-4">
+            <span
+              aria-hidden="true"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-container text-body-lg font-semibold text-white"
+            >
+              {initials}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-label-md text-on-surface">{user.displayName}</p>
+              <p className="truncate text-caption text-on-surface-variant">{user.email}</p>
+              <p className="mt-1.5 inline-flex rounded-full bg-primary-container/10 px-2.5 py-0.5 text-label-sm text-primary-container">
+                {user.roleLabel}
+              </p>
+            </div>
           </div>
-          <ul className="py-1 text-body-md">
-            <li>
-              <Link
-                role="menuitem"
-                href="/profile"
-                onClick={() => setOpen(false)}
-                className="flex min-h-11 items-center gap-3 px-4 hover:bg-surface"
-              >
-                <Icons.PersonIcon className="h-5 w-5 text-outline" />
-                โปรไฟล์ของฉัน
-              </Link>
-            </li>
-            <li>
-              <a
-                role="menuitem"
-                href={homeHref}
-                className="flex min-h-11 items-center gap-3 px-4 hover:bg-surface"
-              >
-                <Icons.HomeIcon className="h-5 w-5 text-outline" />
-                กลับหน้าหลัก
-              </a>
-            </li>
-            <li>
-              <a
-                role="menuitem"
-                href={logoutHref}
-                className="flex min-h-11 items-center gap-3 px-4 text-error hover:bg-error-container/60"
-              >
-                <Icons.LogoutIcon className="h-5 w-5" />
-                ออกจากระบบ
-              </a>
-            </li>
-          </ul>
+          <div
+            ref={menu}
+            id={menuId}
+            role="menu"
+            aria-label="บัญชีผู้ใช้"
+            onKeyDown={onMenuKeyDown}
+            className="py-1"
+          >
+            <Link role="menuitem" href="/profile" onClick={() => setOpen(false)} className={itemClass}>
+              <Icons.PersonIcon className="h-5 w-5 text-outline" />
+              โปรไฟล์ของฉัน
+            </Link>
+            <a role="menuitem" href={homeHref} className={itemClass}>
+              <Icons.HomeIcon className="h-5 w-5 text-outline" />
+              กลับหน้าหลัก
+            </a>
+            <div role="separator" className="my-1 h-px bg-outline-variant/40" />
+            <a
+              role="menuitem"
+              href={logoutHref}
+              className="flex min-h-11 items-center gap-3 px-4 text-body-md text-error outline-offset-[-2px] transition-colors hover:bg-error-container/60 focus-visible:bg-error-container/60"
+            >
+              <Icons.LogoutIcon className="h-5 w-5" />
+              ออกจากระบบ
+            </a>
+          </div>
         </div>
       ) : null}
     </div>
