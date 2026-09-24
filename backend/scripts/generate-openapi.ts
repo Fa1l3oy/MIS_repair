@@ -32,7 +32,8 @@ async function main() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    operationIdFactory: (controllerKey, methodKey) => `${controllerKey.replace(/Controller$/, '')}_${methodKey}`,
+    operationIdFactory: (controllerKey, methodKey) =>
+      `${controllerKey.replace(/Controller$/, '')}_${methodKey}`,
   });
   writeFileSync(OUTPUT, `${JSON.stringify(document, null, 2)}\n`);
   await app.close();

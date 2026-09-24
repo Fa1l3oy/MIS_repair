@@ -9,10 +9,3 @@ export class TokenRejectedError extends Error {
     super(reason);
   }
 }
-
-/** รู้แล้วว่าเป็นใคร แต่ core role นี้ระบบย่อยไม่รับ → 403 FORBIDDEN */
-export class RoleNotMappedError extends Error {
-  constructor(readonly coreRole: string) {
-    super(`core role "${coreRole}" is not mapped`);
-  }
-}
