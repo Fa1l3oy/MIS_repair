@@ -404,3 +404,35 @@ export const ZoomInIcon = (p: IconProps) => (
     <path d="m20 20-4.2-4.2M11 8.5v5M8.5 11h5" />
   </Icon>
 );
+
+/** ระดับความเร่งด่วน: ลูกศรคู่ขึ้น · ลูกศรขึ้น · เส้นคู่ · ลูกศรลง */
+export const PriorityUrgentIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m6 11 6-6 6 6M6 18l6-6 6 6" />
+  </Icon>
+);
+
+export const PriorityHighIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m6 15 6-6 6 6" />
+  </Icon>
+);
+
+export const PriorityMediumIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6 9.5h12M6 14.5h12" />
+  </Icon>
+);
+
+export const PriorityLowIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);
+
+export const PushPinIcon = ({ filled = false, ...p }: IconProps & { filled?: boolean }) => (
+  <Icon {...p}>
+    <path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z" fill={filled ? 'currentColor' : 'none'} />
+    <path d="M12 14v6.5" />
+  </Icon>
+);

@@ -8,7 +8,7 @@ export { CsmjuLogo } from './CsmjuLogo';
 export { ConfirmDeleteModal } from './ConfirmDeleteModal';
 export { Modal } from './Modal';
 export { PageHeader } from './PageHeader';
-export { StatusBadge } from './StatusBadge';
+export { StatusBadge, TONE_DOT_CLASS } from './StatusBadge';
 export type { StatusTone } from './StatusBadge';
 export { Tabs } from './Tabs';
 export type { TabItem } from './Tabs';

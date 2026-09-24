@@ -20,7 +20,7 @@ import { StatCard } from '@/components/features/StatCard';
 import { ApiFailure } from '@/components/shared/ApiFailure';
 import { ForbiddenState } from '@/components/shared/ForbiddenState';
 import { formatDate, formatHours, formatNumber } from '@/lib/format';
-import { PRIORITY_LABEL, STATUS_LABEL } from '@/lib/labels';
+import { PRIORITY_LABEL, PRIORITY_TONE, STATUS_LABEL, STATUS_TONE } from '@/lib/labels';
 import { can, P } from '@/lib/permissions';
 import { serverApi } from '@/lib/server-api';
 import { getMe } from '@/lib/session';
@@ -140,12 +140,20 @@ export default async function DashboardPage(props: PageProps<'/dashboard'>) {
         </Panel>
         <Panel title="ตามสถานะปัจจุบัน (งานที่แจ้งในช่วงนี้)">
           <BarList
-            items={s.byStatus.map((item) => ({ label: STATUS_LABEL[item.status], value: item.count }))}
+            items={s.byStatus.map((item) => ({
+              label: STATUS_LABEL[item.status],
+              value: item.count,
+              tone: STATUS_TONE[item.status],
+            }))}
           />
         </Panel>
         <Panel title="ตามความเร่งด่วน">
           <BarList
-            items={s.byPriority.map((item) => ({ label: PRIORITY_LABEL[item.priority], value: item.count }))}
+            items={s.byPriority.map((item) => ({
+              label: PRIORITY_LABEL[item.priority],
+              value: item.count,
+              tone: PRIORITY_TONE[item.priority],
+            }))}
           />
         </Panel>
       </div>

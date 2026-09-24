@@ -16,7 +16,7 @@ import {
 } from '@/csmju';
 import { CommentBox } from '@/components/features/requests/CommentBox';
 import { ImageGallery } from '@/components/features/requests/ImageGallery';
-import { PriorityBadge, RequestStatusBadge, SlaBadge } from '@/components/features/requests/badges';
+import { PriorityTag, RequestStatusBadge, SlaIndicator } from '@/components/features/requests/badges';
 import { RatingCard } from '@/components/features/requests/RatingCard';
 import { RequestActions } from '@/components/features/requests/RequestActions';
 import { Timeline } from '@/components/features/requests/Timeline';
@@ -71,8 +71,8 @@ export default async function RequestDetailPage(props: PageProps<'/requests/[id]
           <>
             <span className="text-label-md text-primary-container tabular-nums">{request.code}</span>
             <RequestStatusBadge status={request.status} />
-            <PriorityBadge priority={request.priority} />
-            <SlaBadge sla={request.sla} />
+            <PriorityTag priority={request.priority} />
+            <SlaIndicator sla={request.sla} />
           </>
         }
         title={request.equipment}

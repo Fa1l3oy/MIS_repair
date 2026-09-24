@@ -1,3 +1,4 @@
+import { TONE_DOT_CLASS, type StatusTone } from '@/csmju';
 import { formatDate, formatMonth, formatNumber } from '@/lib/format';
 
 /**
@@ -137,7 +138,7 @@ export function BarList({
   items,
   emptyText = 'ยังไม่มีข้อมูลในช่วงนี้',
 }: {
-  items: { label: string; value: number; hint?: string }[];
+  items: { label: string; value: number; hint?: string; tone?: StatusTone }[];
   emptyText?: string;
 }) {
   const max = Math.max(1, ...items.map((item) => item.value));
@@ -159,7 +160,7 @@ export function BarList({
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-surface-container" aria-hidden="true">
             <div
-              className="h-full rounded-full bg-chart-1"
+              className={`h-full rounded-full ${item.tone ? TONE_DOT_CLASS[item.tone] : 'bg-chart-1'}`}
               style={{ width: `${Math.max(2, (item.value / max) * 100)}%` }}
             />
           </div>

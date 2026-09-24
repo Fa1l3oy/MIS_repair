@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
-export type TabItem = { key: string; label: string; href: string; count?: number };
+/** tone 'error' = ตัวนับเป็นสีแดงเมื่อมากกว่า 0 (เช่น งานเกินกำหนด) */
+export type TabItem = { key: string; label: string; href: string; count?: number; tone?: 'error' };
 
 /**
  * แถบ tab แบบลิงก์ (สถานะอยู่ใน URL — ย้อนกลับ/แชร์ลิงก์ได้) ตามสเปค Tabs ข้อ 7.2.1
@@ -28,7 +29,11 @@ export function Tabs({ items, active, label }: { items: TabItem[]; active: strin
                 {item.count !== undefined ? (
                   <span
                     className={`rounded-full px-2 py-0.5 text-label-sm tabular-nums ${
-                      selected ? 'bg-primary-container/10 text-primary-container' : 'bg-surface-variant'
+                      item.tone === 'error' && item.count > 0
+                        ? 'bg-error-container text-on-error-container'
+                        : selected
+                          ? 'bg-primary-container/10 text-primary-container'
+                          : 'bg-surface-variant'
                     }`}
                   >
                     {item.count}

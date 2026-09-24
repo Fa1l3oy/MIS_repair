@@ -11,6 +11,15 @@ const TONE_STYLES: Record<StatusTone, { badge: string; dot: string }> = {
   neutral: { badge: 'bg-surface-variant text-on-surface-variant', dot: 'bg-outline' },
 };
 
+/** สีจุดของแต่ละ tone — ใช้กับแถบสีข้างรายการหรือแท่งกราฟที่ต้องสื่อสถานะเดียวกับ badge */
+export const TONE_DOT_CLASS: Record<StatusTone, string> = {
+  success: TONE_STYLES.success.dot,
+  info: TONE_STYLES.info.dot,
+  warning: TONE_STYLES.warning.dot,
+  error: TONE_STYLES.error.dot,
+  neutral: TONE_STYLES.neutral.dot,
+};
+
 export function StatusBadge({
   tone,
   children,

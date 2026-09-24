@@ -37,10 +37,11 @@ export const PRIORITY_HINT: Record<Priority, string> = {
   LOW: 'ปรับปรุงเล็กน้อย — เป้าหมาย 7 วัน',
 };
 
+/** สีเฉพาะระดับที่ต้องรีบ — ปกติ/ไม่เร่งด่วนเป็นสีเทา (ตรงกับ PriorityTag) */
 export const PRIORITY_TONE: Record<Priority, Tone> = {
   URGENT: 'error',
   HIGH: 'warning',
-  MEDIUM: 'info',
+  MEDIUM: 'neutral',
   LOW: 'neutral',
 };
 
@@ -62,15 +63,6 @@ export const SLA_LABEL: Record<SlaState, string> = {
   MET: 'เสร็จทันกำหนด',
   MISSED: 'เสร็จช้ากว่ากำหนด',
   CLOSED: 'ปิดงานแล้ว',
-};
-
-export const SLA_TONE: Record<SlaState, Tone> = {
-  ON_TRACK: 'success',
-  AT_RISK: 'warning',
-  OVERDUE: 'error',
-  MET: 'success',
-  MISSED: 'warning',
-  CLOSED: 'neutral',
 };
 
 /** คำเรียก core role มาตรฐาน (ui-design-system.md ข้อ 10.3 — ห้ามแปลเอง) */

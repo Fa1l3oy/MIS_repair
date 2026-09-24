@@ -67,6 +67,7 @@ export default async function QueuePage(props: PageProps<'/queue'>) {
       label: TABS[key].label,
       href: key === 'pending' ? '/queue' : `/queue?tab=${key}`,
       count: count && count.ok ? count.meta?.total : undefined,
+      tone: key === 'overdue' ? ('error' as const) : undefined,
     };
   });
   const filtered = FILTERS.some((key) => key !== 'page' && key !== 'sort' && params[key]);
