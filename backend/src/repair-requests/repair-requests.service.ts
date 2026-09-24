@@ -35,11 +35,10 @@ import {
   toDetailDto,
   toSummaryDto,
 } from './repair-requests.mapper';
+import { PRIORITY_LABEL } from './labels';
 import { formatRequestCode, requestCodePrefix } from './request-code';
 import { CLOSED_STATUSES, dueAtFor, OPEN_STATUSES } from './sla';
 import { ACTION_FOR_STATUS, assertCan, canRead, STATUS_LABEL, type WorkflowSubject } from './workflow';
-
-const PRIORITY_LABEL = { URGENT: 'ด่วนมาก', HIGH: 'ด่วน', MEDIUM: 'ปกติ', LOW: 'ไม่เร่งด่วน' } as const;
 
 const ORDER_BY: Record<ListRepairRequestsQueryDto['sort'], Prisma.RepairRequestOrderByWithRelationInput[]> = {
   newest: [{ createdAt: 'desc' }, { id: 'desc' }],
