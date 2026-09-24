@@ -147,7 +147,7 @@ export function CsmjuAppShell({
     }`;
     const onDarkItem = `flex min-h-11 w-full items-center gap-2 overflow-hidden rounded-lg border border-white/25 bg-white/10 px-4 text-label-md text-white backdrop-blur-sm transition-colors hover:bg-white/20 ${focusRingOnDark}`;
     return (
-      <div className="flex h-full w-full flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-6 text-white">
+      <div className="flex h-full w-full flex-col gap-5 overflow-hidden px-3 py-6 text-white">
         <div className="relative h-32 shrink-0">
           <span
             aria-hidden="true"
@@ -174,7 +174,10 @@ export function CsmjuAppShell({
             <span className={label}>{primaryAction.label}</span>
           </Link>
         ) : null}
-        <nav aria-label="เมนูของระบบ" className="flex-1">
+        <ScrollArea
+          label="เมนูของระบบ"
+          className="scrollbar-none -mx-3 -my-1 min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-1"
+        >
           <ul className="space-y-1">
             {nav.map((item) => {
               const Icon = ICONS[item.icon];
@@ -204,8 +207,8 @@ export function CsmjuAppShell({
               );
             })}
           </ul>
-        </nav>
-        <div className="space-y-3">
+        </ScrollArea>
+        <div className="shrink-0 space-y-3">
           {rail ? (
             <button
               type="button"
@@ -330,6 +333,55 @@ export function CsmjuAppShell({
         </footer>
       </div>
     </div>
+  );
+}
+
+const FADE_EDGE_CLASS = {
+  none: '',
+  top: 'fade-edge-top',
+  bottom: 'fade-edge-bottom',
+  both: 'fade-edge-both',
+} as const;
+
+/**
+ * รายการเมนูที่เลื่อนได้เมื่อจอเตี้ย (ซ่อนแถบเลื่อนไว้) — ขอบบน/ล่างจางลงเฉพาะด้านที่ยังมีรายการซ่อนอยู่
+ * จึงไม่ถูกตัดขอบแข็ง ๆ และผู้ใช้รู้ว่าเลื่อนต่อได้
+ */
+function ScrollArea({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className: string;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const [fade, setFade] = useState<keyof typeof FADE_EDGE_CLASS>('none');
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const update = () => {
+      const hidden = element.scrollHeight - element.clientHeight;
+      const above = element.scrollTop > 1;
+      const below = element.scrollTop < hidden - 1;
+      setFade(hidden <= 1 ? 'none' : above && below ? 'both' : above ? 'top' : 'bottom');
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    element.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      element.removeEventListener('scroll', update);
+    };
+  }, []);
+
+  return (
+    <nav ref={ref} aria-label={label} className={`${className} ${FADE_EDGE_CLASS[fade]}`}>
+      {children}
+    </nav>
   );
 }
 

@@ -171,6 +171,43 @@
     animation: pulse 1.4s ease-in-out infinite;
   }
 
+  /* ซ่อนแถบเลื่อนแต่ยังเลื่อนได้ด้วยล้อเมาส์ ทัช และคีย์บอร์ด — ใช้กับเมนูใน sidebar ที่แคบเกินกว่าจะมีแถบเลื่อน */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ขอบจางของรายการที่เลื่อนได้ — บอกว่ายังมีรายการซ่อนอยู่ด้านนั้น (mask โปร่งใส ไม่ใช่สี) */
+  .fade-edge-top {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black theme('spacing.6'));
+    mask-image: linear-gradient(to bottom, transparent, black theme('spacing.6'));
+  }
+
+  .fade-edge-bottom {
+    -webkit-mask-image: linear-gradient(to top, transparent, black theme('spacing.6'));
+    mask-image: linear-gradient(to top, transparent, black theme('spacing.6'));
+  }
+
+  .fade-edge-both {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black theme('spacing.6'),
+      black calc(100% - theme('spacing.6')),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black theme('spacing.6'),
+      black calc(100% - theme('spacing.6')),
+      transparent
+    );
+  }
+
   .skip-link {
     position: absolute;
     left: 16px;

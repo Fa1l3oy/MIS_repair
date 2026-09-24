@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // กติกาของ AI agent ใน repo นี้มาจาก standards/ai/AGENTS.md — ไม่ให้ next dev สร้างไฟล์ซ้อน
   agentRules: false,
+  // ปุ่ม dev tools ของ Next.js (เฉพาะตอน dev) ย้ายไปขวาล่าง ไม่ให้บังปุ่มออกจากระบบในแถบเมนูซ้าย
+  devIndicators: { position: 'bottom-right' },
   output: 'standalone',
   // หน้าเว็บกับ API อยู่ origin เดียวกัน: คุกกี้ core_hub_access_token ถูกส่งไปกับทุกคำขอเอง
   async rewrites() {
