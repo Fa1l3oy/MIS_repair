@@ -320,7 +320,7 @@ export function CsmjuAppShell({
         <main
           id="main"
           tabIndex={-1}
-          className="mx-auto w-full max-w-content flex-1 space-y-8 px-4 py-6 md:px-12 md:py-10"
+          className="mx-auto w-full max-w-content flex-1 space-y-8 px-4 py-6 focus:outline-none md:px-12 md:py-10"
         >
           {children}
         </main>
