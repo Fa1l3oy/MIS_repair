@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_Thai, Plus_Jakarta_Sans } from 'next/font/google';
-import { CsmjuAppShell, type ShellNavItem } from '@/csmju';
+import { cookies } from 'next/headers';
+import { CsmjuAppShell, SIDEBAR_COOKIE, type ShellNavItem } from '@/csmju';
 import { CommandPalette } from '@/components/features/CommandPalette';
 import { NotificationBell } from '@/components/features/NotificationBell';
 import { ReturnToRedirect } from '@/components/features/ReturnToRedirect';
@@ -88,6 +89,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
   }
 
   const user = me.data;
+  const sidebarPinned = (await cookies()).get(SIDEBAR_COOKIE)?.value === 'pinned';
   const roleLabel =
     user.subsystemRole === 'USER'
       ? (CORE_ROLE_LABEL[user.coreRole] ?? SUBSYSTEM_ROLE_LABEL.USER)
@@ -109,6 +111,7 @@ async function Shell({ children }: { children: React.ReactNode }) {
         homeHref={coreHubHomeUrl()}
         logoutHref={process.env.NEXT_PUBLIC_CORE_HUB_LOGOUT_URL || (CORE_HUB_URL ? `${CORE_HUB_URL}/` : '/')}
         loginHref={coreHubLoginUrl()}
+        initialPinned={sidebarPinned}
       >
         {children}
       </CsmjuAppShell>

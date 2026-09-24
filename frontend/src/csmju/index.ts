@@ -3,6 +3,7 @@
  * เพื่อให้เปลี่ยน `from "@/csmju"` เป็น `from "@csmju2030/design-system"` ได้ทันทีเมื่อ PM เผยแพร่ package
  */
 export { CsmjuAppShell } from './CsmjuAppShell';
+export { SIDEBAR_COOKIE } from './shell';
 export type { ShellIcon, ShellNavItem, ShellUser } from './CsmjuAppShell';
 export { CsmjuLogo } from './CsmjuLogo';
 export { ConfirmDeleteModal } from './ConfirmDeleteModal';

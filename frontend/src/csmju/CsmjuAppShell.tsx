@@ -7,7 +7,8 @@ import { UNAUTHORIZED_EVENT } from '@/lib/api';
 import { CsmjuLogo } from './CsmjuLogo';
 import * as Icons from './icons';
 import type { IconProps } from './icons';
-import { iconRoundButtonClass, onDarkButtonClass, primaryButtonClass } from './ui';
+import { SIDEBAR_COOKIE } from './shell';
+import { iconRoundButtonClass } from './ui';
 
 export type ShellIcon = keyof typeof ICONS;
 export type ShellNavItem = {
@@ -35,11 +36,17 @@ const ICONS = {
 } satisfies Record<string, ComponentType<IconProps>>;
 
 const REDIRECT_GUARD_KEY = 'csmju-sso-redirects';
+const focusRingOnDark =
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 
 /**
  * โครงหน้าจอกลางของทุกระบบย่อย (ui-design-system.md ข้อ 5.1) — stand-in ของ `CsmjuAppShell` ใน template
  * sidebar brand-gradient 256px · top bar 64px · drawer บนมือถือ · skip link · ปุ่มออกจากระบบล่าง sidebar
  * 401: พาไปเข้าสู่ระบบใหม่ที่ Core Hub โดยไม่แสดงข้อความให้ผู้ใช้ (ข้อ 9.3) พร้อมกันวน redirect ไม่รู้จบ
+ *
+ * ตามคำขอของเจ้าของระบบ: บนจอ md+ sidebar ย่อเป็นแถบไอคอน 72px และกางเต็ม 256px เมื่อชี้เมาส์
+ * หรือกด Tab เข้ามา (กางทับเนื้อหา ไม่ดันหน้า) · ปุ่ม "ตรึงแถบเมนู" กลับเป็นแบบมาตรฐานที่กางตลอด
+ * ปุ่มกลับหน้าหลัก/ออกจากระบบยังอยู่ตำแหน่งเดิมทั้งสองแบบ · มือถือยังเป็น drawer ตามเดิม
  */
 export function CsmjuAppShell({
   subsystemName,
@@ -52,6 +59,7 @@ export function CsmjuAppShell({
   homeHref,
   logoutHref,
   loginHref,
+  initialPinned = false,
   children,
 }: {
   subsystemName: string;
@@ -64,10 +72,35 @@ export function CsmjuAppShell({
   homeHref: string;
   logoutHref: string;
   loginHref: string;
+  initialPinned?: boolean;
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [pinned, setPinned] = useState(initialPinned);
+  const [hovered, setHovered] = useState(false);
+  const [keyboardFocus, setKeyboardFocus] = useState(false);
+  const hoverTimer = useRef<number | undefined>(undefined);
+  const expanded = pinned || hovered || keyboardFocus;
+
+  // หน่วงนิดหน่อยก่อนกาง/หุบ — ลากเมาส์ผ่านเฉย ๆ จะไม่กระพริบ
+  const onPointerEnter = (event: React.PointerEvent) => {
+    if (event.pointerType === 'touch') return;
+    window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = window.setTimeout(() => setHovered(true), 80);
+  };
+  const onPointerLeave = () => {
+    window.clearTimeout(hoverTimer.current);
+    hoverTimer.current = window.setTimeout(() => setHovered(false), 200);
+  };
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
+
+  const togglePinned = () => {
+    const next = !pinned;
+    setPinned(next);
+    if (!next) setHovered(false);
+    document.cookie = `${SIDEBAR_COOKIE}=${next ? 'pinned' : 'auto'}; path=/; max-age=31536000; samesite=lax`;
+  };
 
   useEffect(() => setDrawerOpen(false), [pathname]);
 
@@ -103,64 +136,94 @@ export function CsmjuAppShell({
   const isActive = (item: ShellNavItem) =>
     item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-  const sidebar = (
-    <div className="flex h-full flex-col gap-6 overflow-y-auto p-6 text-white">
-      <div className="space-y-3">
-        <CsmjuLogo framed priority />
-        <div>
-          <p className="text-label-md text-white">{displayName}</p>
-          <p className="text-caption text-primary-fixed">{subsystemName}</p>
+  /** rail = แถบบนจอใหญ่ (หุบ/กางได้ + ปุ่มตรึง) · drawer มือถือกางเต็มเสมอ */
+  const renderSidebar = (open: boolean, rail: boolean) => {
+    const itemWidth = open ? 'w-full' : 'w-12';
+    const fade = `whitespace-nowrap transition-opacity duration-150 ${open ? 'opacity-100 delay-75' : 'opacity-0'}`;
+    const onDarkItem = `flex min-h-11 items-center gap-2 overflow-hidden rounded-lg border border-white/25 bg-white/10 px-4 text-label-md text-white backdrop-blur-sm transition-colors hover:bg-white/20 ${focusRingOnDark} ${itemWidth}`;
+    return (
+      <div className="flex h-full w-64 flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-6 text-white">
+        <div className="relative h-32 shrink-0">
+          <span
+            aria-hidden="true"
+            className={`absolute left-0 top-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-primary-container shadow-sm transition-opacity duration-150 ${
+              open ? 'opacity-0' : 'opacity-100'
+            }`}
+          >
+            <Icons.BuildIcon className="h-6 w-6" />
+          </span>
+          <div className={`absolute inset-x-0 top-0 space-y-3 ${fade}`}>
+            <CsmjuLogo framed priority />
+            <div>
+              <p className="text-label-md text-white">{displayName}</p>
+              <p className="text-caption text-primary-fixed">{subsystemName}</p>
+            </div>
+          </div>
+        </div>
+        {primaryAction ? (
+          <Link
+            href={primaryAction.href}
+            className={`btn-gradient relative flex h-11 shrink-0 items-center gap-3 overflow-hidden rounded-lg px-4 text-label-md text-on-primary shadow-md ${focusRingOnDark} ${itemWidth}`}
+          >
+            <Icons.AddIcon className="h-4 w-4 shrink-0" />
+            <span className={fade}>{primaryAction.label}</span>
+          </Link>
+        ) : null}
+        <nav aria-label="เมนูของระบบ" className="flex-1">
+          <ul className="space-y-1">
+            {nav.map((item) => {
+              const Icon = ICONS[item.icon];
+              const active = isActive(item);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`flex min-h-11 items-center gap-3 overflow-hidden rounded-lg py-2 transition-colors duration-200 ${focusRingOnDark} ${itemWidth} ${
+                      active
+                        ? 'border-l-4 border-accent bg-white/10 pl-2.5 pr-3.5 text-white'
+                        : 'px-3.5 text-white/70 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span className={`min-w-0 ${fade}`}>
+                      <span className="block text-label-md">{item.label}</span>
+                      {item.labelEn ? (
+                        <span lang="en" className="block text-caption text-white/50">
+                          {item.labelEn}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        <div className="space-y-3">
+          {rail ? (
+            <button
+              type="button"
+              onClick={togglePinned}
+              aria-pressed={pinned}
+              className={`flex min-h-11 items-center gap-3 overflow-hidden rounded-lg px-3.5 py-2 text-label-md text-white/70 transition-colors hover:bg-white/5 hover:text-white ${focusRingOnDark} ${itemWidth}`}
+            >
+              <Icons.PushPinIcon filled={pinned} className="h-5 w-5 shrink-0" />
+              <span className={fade}>{pinned ? 'เลิกตรึงแถบเมนู' : 'ตรึงแถบเมนูไว้'}</span>
+            </button>
+          ) : null}
+          <a href={homeHref} className={onDarkItem}>
+            <Icons.HomeIcon className="h-4 w-4 shrink-0" />
+            <span className={fade}>กลับหน้าหลัก</span>
+          </a>
+          <a href={logoutHref} className={onDarkItem}>
+            <Icons.LogoutIcon className="h-4 w-4 shrink-0" />
+            <span className={fade}>ออกจากระบบ</span>
+          </a>
         </div>
       </div>
-      {primaryAction ? (
-        <Link href={primaryAction.href} className={`${primaryButtonClass} w-full py-3`}>
-          <Icons.AddIcon className="h-4 w-4" />
-          {primaryAction.label}
-        </Link>
-      ) : null}
-      <nav aria-label="เมนูของระบบ" className="-mx-2 flex-1">
-        <ul className="space-y-1">
-          {nav.map((item) => {
-            const Icon = ICONS[item.icon];
-            const active = isActive(item);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
-                    active
-                      ? 'border-l-4 border-accent bg-white/10 text-white'
-                      : 'text-white/70 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <Icon className="h-5 w-5 shrink-0" />
-                  <span className="min-w-0">
-                    <span className="block text-label-md">{item.label}</span>
-                    {item.labelEn ? (
-                      <span lang="en" className="block text-caption text-white/50">
-                        {item.labelEn}
-                      </span>
-                    ) : null}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-      <div className="space-y-3">
-        <a href={homeHref} className={`${onDarkButtonClass} w-full`}>
-          <Icons.HomeIcon className="h-4 w-4" />
-          กลับหน้าหลัก
-        </a>
-        <a href={logoutHref} className={`${onDarkButtonClass} w-full`}>
-          <Icons.LogoutIcon className="h-4 w-4" />
-          ออกจากระบบ
-        </a>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-dvh bg-background">
@@ -171,8 +234,19 @@ export function CsmjuAppShell({
         ข้ามไปยังเนื้อหาหลัก
       </a>
 
-      <aside className="brand-gradient fixed inset-y-0 left-0 z-30 hidden w-64 shadow-xl md:block print:hidden">
-        {sidebar}
+      <aside
+        aria-label="แถบเมนู"
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
+        onFocus={(event) => setKeyboardFocus((event.target as HTMLElement).matches(':focus-visible'))}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setKeyboardFocus(false);
+        }}
+        className={`brand-gradient fixed inset-y-0 left-0 z-30 hidden overflow-hidden shadow-xl transition-[width] duration-200 ease-out md:block print:hidden ${
+          expanded ? 'w-64' : 'w-[72px]'
+        }`}
+      >
+        {renderSidebar(expanded, true)}
       </aside>
 
       {drawerOpen ? (
@@ -200,10 +274,12 @@ export function CsmjuAppShell({
         >
           <Icons.CloseIcon className="h-6 w-6" />
         </button>
-        {sidebar}
+        {renderSidebar(true, false)}
       </aside>
 
-      <div className="flex min-h-dvh flex-col md:pl-64">
+      <div
+        className={`flex min-h-dvh flex-col transition-[padding] duration-200 ease-out ${pinned ? 'md:pl-64' : 'md:pl-[72px]'}`}
+      >
         <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-surface-variant bg-surface-container-lowest px-4 shadow-sm md:px-8 print:hidden">
           <button
             type="button"
