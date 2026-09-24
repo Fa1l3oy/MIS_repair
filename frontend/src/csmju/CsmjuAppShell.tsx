@@ -148,17 +148,17 @@ export function CsmjuAppShell({
     const onDarkItem = `flex min-h-11 w-full items-center gap-2 overflow-hidden rounded-lg border border-white/25 bg-white/10 px-4 text-label-md text-white backdrop-blur-sm transition-colors hover:bg-white/20 ${focusRingOnDark}`;
     return (
       <div className="flex h-full w-full flex-col gap-5 overflow-hidden px-3 py-6 text-white">
-        <div className="relative h-32 shrink-0">
+        <div className="relative h-[152px] shrink-0">
           <span
             aria-hidden="true"
-            className={`motion-fade absolute left-0 top-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-primary-container shadow-sm transition-[opacity,transform] ease-out ${
+            className={`motion-fade absolute left-0 top-[26px] flex h-12 w-12 items-center justify-center rounded-xl bg-white text-primary-container shadow-sm transition-[opacity,transform] ease-out ${
               open ? 'scale-90 opacity-0 duration-100' : 'scale-100 opacity-100 delay-75 duration-200'
             }`}
           >
             <Icons.BuildIcon className="h-6 w-6" />
           </span>
           <div className={`absolute left-0 top-0 w-[232px] space-y-3 ${label}`}>
-            <CsmjuLogo framed priority />
+            <CsmjuLogo framed priority width={184} className="w-full justify-center" />
             <div>
               <p className="text-label-md text-white">{displayName}</p>
               <p className="text-caption text-primary-fixed">{subsystemName}</p>
@@ -276,14 +276,17 @@ export function CsmjuAppShell({
           drawerOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(false)}
-          aria-label="ปิดเมนู"
-          className="absolute right-2 top-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-white hover:bg-white/10"
-        >
-          <Icons.CloseIcon className="h-6 w-6" />
-        </button>
+        {drawerOpen ? (
+          // อยู่นอกแผงเมนู (บนพื้นมืด) เพราะกรอบโลโก้สีขาวกินเต็มความกว้างของแผง
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(false)}
+            aria-label="ปิดเมนู"
+            className="absolute -right-14 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+          >
+            <Icons.CloseIcon className="h-6 w-6" />
+          </button>
+        ) : null}
         {renderSidebar(true, false)}
       </aside>
 
