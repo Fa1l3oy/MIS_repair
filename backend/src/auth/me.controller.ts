@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Patch } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Profile } from '../../generated/prisma/client';
-import { toProfileView } from '../profiles/profile.view';
+import { avatarUrlOf, toProfileView } from '../profiles/profile.view';
 import { MeDto, UpdateMyProfileDto } from '../profiles/profiles.dto';
 import { ProfilesService } from '../profiles/profiles.service';
-import { ApiEnvelope, ApiErrors } from '../common/swagger';
+import { ApiEnvelope, ApiErrors, DeletedDto } from '../common/swagger';
+import { MAX_IMAGE_BYTES, type UploadedImage } from '../repair-images/image-storage';
 import type { CoreHubIdentity } from './core-hub-identity';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RequirePermissions } from './decorators/require-permissions.decorator';
@@ -37,6 +39,33 @@ export class MeController {
     return this.view(user, await this.profiles.updateMine(user.coreUserId, dto));
   }
 
+  @Post('avatar')
+  @RequirePermissions(Permission.PROFILE_UPDATE_OWN)
+  @UseInterceptors(FileInterceptor('avatar', { limits: { fileSize: MAX_IMAGE_BYTES, files: 1, fields: 0 } }))
+  @ApiOperation({ summary: 'เปลี่ยนรูปโปรไฟล์ของตัวเอง (JPG · PNG · WebP ไม่เกิน 2 MB ในช่อง avatar)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['avatar'],
+      properties: { avatar: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiEnvelope(MeDto, { status: 201 })
+  @ApiErrors(400, 403, 409)
+  async uploadAvatar(@CurrentUser() user: CoreHubIdentity, @UploadedFile() file: UploadedImage | undefined) {
+    return this.view(user, await this.profiles.setAvatar(user.coreUserId, file));
+  }
+
+  @Delete('avatar')
+  @RequirePermissions(Permission.PROFILE_UPDATE_OWN)
+  @ApiOperation({ summary: 'ลบรูปโปรไฟล์ของตัวเอง (กลับไปใช้อักษรย่อ)' })
+  @ApiEnvelope(DeletedDto)
+  @ApiErrors(403, 404, 409)
+  removeAvatar(@CurrentUser() user: CoreHubIdentity) {
+    return this.profiles.removeAvatar(user.coreUserId);
+  }
+
   private view(user: CoreHubIdentity, profile: Profile): MeDto {
     const local = toProfileView(profile);
     return {
@@ -49,6 +78,7 @@ export class MeController {
       hasDisplayName: Boolean(profile.displayName),
       phone: local.phone,
       workUnit: local.workUnit,
+      avatarUrl: avatarUrlOf(profile),
       sessionExpiresAt: new Date(user.tokenExpiresAt * 1000).toISOString(),
     };
   }

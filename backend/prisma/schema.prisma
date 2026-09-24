@@ -45,19 +45,21 @@ enum ActivityType {
 /// ข้อมูล local ของผู้ใช้ในระบบนี้ (Core Hub v1.0 ยังไม่มี full_name / phone — data-dictionary.md ข้อ 1.3)
 /// ไม่ใช่ตาราง users: ไม่มีรหัสผ่าน ไม่มีการพิสูจน์ตัวตน · email/core_role เป็นสำเนาจาก token ที่ผ่านการตรวจแล้ว
 model Profile {
-  id           String    @id @default(uuid()) @db.Uuid
-  coreUserId   String    @unique @map("core_user_id") @db.VarChar(64)
-  email        String    @db.VarChar(254)
-  coreRole     String    @map("core_role") @db.VarChar(10)
-  displayName  String?   @map("display_name") @db.VarChar(100)
-  phone        String?   @db.VarChar(10)
+  id             String    @id @default(uuid()) @db.Uuid
+  coreUserId     String    @unique @map("core_user_id") @db.VarChar(64)
+  email          String    @db.VarChar(254)
+  coreRole       String    @map("core_role") @db.VarChar(10)
+  displayName    String?   @map("display_name") @db.VarChar(100)
+  phone          String?   @db.VarChar(10)
   /// ห้อง/หน่วยงานที่ติดต่อได้ (ข้อมูลติดต่อ ไม่ใช่ department กลางของ Core Hub)
-  workUnit     String?   @map("work_unit") @db.VarChar(100)
+  workUnit       String?   @map("work_unit") @db.VarChar(100)
   /// Layer 2: ผู้ดูแลระบบนี้แต่งตั้งบุคลากรเป็นช่าง (data-dictionary.md ข้อ 10 — Layer 2 Role เป็นของระบบย่อย)
-  isTechnician Boolean   @default(false) @map("is_technician")
-  lastSeenAt   DateTime? @map("last_seen_at") @db.Timestamptz(3)
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  isTechnician   Boolean   @default(false) @map("is_technician")
+  /// รูปโปรไฟล์ที่ผู้ใช้อัปโหลดในระบบนี้ (Core Hub v1.0 ยังไม่มีรูปผู้ใช้) — ชื่อไฟล์ใน UPLOAD_DIR
+  avatarFilename String?   @map("avatar_filename") @db.VarChar(100)
+  lastSeenAt     DateTime? @map("last_seen_at") @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   reportedRequests RepairRequest[]   @relation("Reporter")
   assignedRequests RepairRequest[]   @relation("Assignee")

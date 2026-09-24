@@ -11,11 +11,13 @@ import { minutesLeft, SLA_HOURS, slaStateOf } from './sla';
 import { allowedActions } from './workflow';
 
 export const personSelect = {
+  id: true,
   coreUserId: true,
   displayName: true,
   email: true,
   phone: true,
   workUnit: true,
+  avatarFilename: true,
 } as const satisfies Prisma.ProfileSelect;
 
 export const summaryInclude = {

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AVATAR_URL_DESCRIPTION } from '../profiles/profiles.dto';
 import { Transform } from 'class-transformer';
 import {
   IsIn,
@@ -255,6 +256,8 @@ export class PersonDto {
   @ApiProperty() email: string;
   @ApiProperty({ type: String, nullable: true }) phone: string | null;
   @ApiProperty({ type: String, nullable: true }) workUnit: string | null;
+  @ApiProperty({ type: String, nullable: true, description: AVATAR_URL_DESCRIPTION }) avatarUrl:
+    string | null;
 }
 
 export class SlaDto {

@@ -77,6 +77,9 @@ export class UpdateProfileDto {
 const CORE_ROLE_VALUES = ['student', 'alumni', 'staff', 'admin'];
 
 /** ผู้ใช้ที่เคยเข้าระบบนี้ (มุมมองของผู้ดูแลระบบ) */
+export const AVATAR_URL_DESCRIPTION =
+  'รูปโปรไฟล์ (GET ได้เมื่อเข้าสู่ระบบแล้ว) · null = ยังไม่มีรูป ให้แสดงอักษรย่อแทน';
+
 export class ProfileDto {
   @ApiProperty({ format: 'uuid', description: 'id ของโปรไฟล์ในระบบนี้ (ใช้กับ PATCH /profiles/:id)' })
   id: string;
@@ -93,6 +96,8 @@ export class ProfileDto {
   @ApiProperty({ example: 'สมชาย ใจดี' }) displayName: string;
   @ApiProperty({ type: String, nullable: true, example: '0812345678' }) phone: string | null;
   @ApiProperty({ type: String, nullable: true, example: 'งานอาคารสถานที่' }) workUnit: string | null;
+  @ApiProperty({ type: String, nullable: true, description: AVATAR_URL_DESCRIPTION }) avatarUrl:
+    string | null;
   @ApiProperty({ type: String, format: 'date-time', nullable: true }) lastSeenAt: string | null;
   @ApiProperty({ format: 'date-time' }) createdAt: string;
   @ApiProperty({ format: 'date-time' }) updatedAt: string;
@@ -112,6 +117,8 @@ export class MeDto {
   hasDisplayName: boolean;
   @ApiProperty({ type: String, nullable: true }) phone: string | null;
   @ApiProperty({ type: String, nullable: true }) workUnit: string | null;
+  @ApiProperty({ type: String, nullable: true, description: AVATAR_URL_DESCRIPTION }) avatarUrl:
+    string | null;
   @ApiProperty({
     format: 'date-time',
     description: 'token หมดอายุเมื่อไร — ต้องเข้าผ่าน Core Hub ใหม่หลังจากนี้',

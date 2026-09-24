@@ -6,7 +6,19 @@ export function displayNameOf(profile: Pick<Profile, 'displayName' | 'email'>) {
   return profile.displayName?.trim() || profile.email.split('@')[0];
 }
 
-type PersonSource = Pick<Profile, 'coreUserId' | 'displayName' | 'email' | 'phone' | 'workUnit'>;
+/**
+ * URL รูปโปรไฟล์ (origin เดียวกับหน้าเว็บ) — ?v= เปลี่ยนทุกครั้งที่เปลี่ยนรูป เบราว์เซอร์จึง cache ได้ยาว
+ * null = ยังไม่มีรูป ให้หน้าเว็บแสดงอักษรย่อแทน
+ */
+export function avatarUrlOf(profile: Pick<Profile, 'id' | 'avatarFilename'>) {
+  if (!profile.avatarFilename) return null;
+  return `/api/v1/profiles/${profile.id}/avatar?v=${profile.avatarFilename.slice(0, 8)}`;
+}
+
+type PersonSource = Pick<
+  Profile,
+  'id' | 'coreUserId' | 'displayName' | 'email' | 'phone' | 'workUnit' | 'avatarFilename'
+>;
 
 /** ข้อมูลย่อของบุคคลที่แนบไปกับใบแจ้งซ่อม (ผู้แจ้ง / ช่าง / ผู้ทำรายการ) */
 export function toPersonView(profile: PersonSource) {
@@ -16,6 +28,7 @@ export function toPersonView(profile: PersonSource) {
     email: profile.email,
     phone: profile.phone,
     workUnit: profile.workUnit,
+    avatarUrl: avatarUrlOf(profile),
   };
 }
 
@@ -30,6 +43,7 @@ export function toProfileView(profile: Profile): ProfileDto {
     displayName: displayNameOf(profile),
     phone: profile.phone,
     workUnit: profile.workUnit,
+    avatarUrl: avatarUrlOf(profile),
     lastSeenAt: profile.lastSeenAt?.toISOString() ?? null,
     createdAt: profile.createdAt.toISOString(),
     updatedAt: profile.updatedAt.toISOString(),

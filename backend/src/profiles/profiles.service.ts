@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma, Profile } from '../../generated/prisma/client';
-import { conflict, notFound } from '../common/api-error';
+import { conflict, notFound, validationError } from '../common/api-error';
 import { Paginated } from '../common/envelope';
 import { pageArgs } from '../common/pagination.dto';
 import type { VerifiedClaims } from '../auth/core-hub-identity';
 import { TECHNICIAN_ELIGIBLE_CORE_ROLE, type SubsystemRole } from '../auth/role-mapping';
 import { PrismaService } from '../prisma/prisma.service';
+import { ImageStorage, type UploadedImage } from '../repair-images/image-storage';
 import { toProfileView } from './profile.view';
 import type { ListProfilesQueryDto, UpdateMyProfileDto } from './profiles.dto';
 
 const TOUCH_TTL_MS = 30_000;
 const OPEN_JOB_STATUSES = ['ACCEPTED', 'IN_PROGRESS', 'ON_HOLD'] as const;
+/** หน้าเว็บย่อรูปเป็นสี่เหลี่ยม 512px ก่อนส่ง (~50 KB) — เผื่อไว้ 2 MB สำหรับ client อื่น */
+export const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 /** เงื่อนไขค้นหาตาม role Layer 2 (ต้องสอดคล้องกับ resolveSubsystemRole) */
 export function subsystemRoleWhere(role: SubsystemRole): Prisma.ProfileWhereInput {
@@ -34,7 +37,10 @@ export function subsystemRoleWhere(role: SubsystemRole): Prisma.ProfileWhereInpu
 export class ProfilesService {
   private readonly touched = new Map<string, { at: number; profile: Profile }>();
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: ImageStorage,
+  ) {}
 
   /** สร้าง/อัปเดตสำเนาจาก token ไม่เกิน 1 ครั้งต่อ 30 วินาทีต่อคน */
   async touch(claims: VerifiedClaims): Promise<Profile> {
@@ -78,6 +84,53 @@ export class ProfilesService {
     });
     this.forget(coreUserId);
     return profile;
+  }
+
+  /**
+   * เปลี่ยนรูปโปรไฟล์ของตัวเอง — ตรวจชนิดไฟล์จาก magic bytes (ImageStorage) แล้วจึงลบรูปเดิม
+   * เปลี่ยนแบบมีเงื่อนไข: ถ้ามีการเปลี่ยนรูปพร้อมกันอีกคำขอ ให้ 409 แทนการทิ้งไฟล์ค้างไว้
+   */
+  async setAvatar(coreUserId: string, file: UploadedImage | undefined) {
+    if (!file) throw validationError(['avatar: กรุณาเลือกรูปโปรไฟล์']);
+    if (file.size > MAX_AVATAR_BYTES) throw validationError(['avatar: รูปโปรไฟล์ต้องไม่เกิน 2 MB']);
+    const current = await this.getByCoreUserId(coreUserId);
+    const [stored] = await this.storage.save([file]);
+    const { count } = await this.prisma.profile.updateMany({
+      where: { coreUserId, avatarFilename: current.avatarFilename },
+      data: { avatarFilename: stored.filename },
+    });
+    if (count === 0) {
+      await this.storage.remove([stored.filename]);
+      throw conflict('มีการเปลี่ยนรูปโปรไฟล์พร้อมกันอีกหน้าหนึ่ง กรุณาลองอีกครั้ง');
+    }
+    if (current.avatarFilename) await this.storage.remove([current.avatarFilename]);
+    this.forget(coreUserId);
+    return this.getByCoreUserId(coreUserId);
+  }
+
+  /** ลบรูปโปรไฟล์ — กลับไปแสดงอักษรย่อ */
+  async removeAvatar(coreUserId: string) {
+    const current = await this.getByCoreUserId(coreUserId);
+    if (!current.avatarFilename) throw notFound('ยังไม่มีรูปโปรไฟล์ให้ลบ');
+    const { count } = await this.prisma.profile.updateMany({
+      where: { coreUserId, avatarFilename: current.avatarFilename },
+      data: { avatarFilename: null },
+    });
+    if (count === 0) throw conflict('มีการเปลี่ยนรูปโปรไฟล์พร้อมกันอีกหน้าหนึ่ง กรุณาลองอีกครั้ง');
+    await this.storage.remove([current.avatarFilename]);
+    this.forget(coreUserId);
+    return { id: current.avatarFilename.split('.')[0], deleted: true as const };
+  }
+
+  /** เปิดไฟล์รูปโปรไฟล์ของใครก็ได้ในระบบนี้ (ต้องเข้าสู่ระบบแล้ว) */
+  async openAvatar(id: string) {
+    const profile = await this.prisma.profile.findUnique({ where: { id }, select: { avatarFilename: true } });
+    if (!profile?.avatarFilename) throw notFound('ผู้ใช้นี้ยังไม่มีรูปโปรไฟล์');
+    const file = await this.storage.open(profile.avatarFilename);
+    if (!file) throw notFound('ไฟล์รูปโปรไฟล์ไม่อยู่ในที่เก็บแล้ว');
+    const extension = profile.avatarFilename.split('.').pop();
+    const type = extension === 'png' ? 'image/png' : extension === 'webp' ? 'image/webp' : 'image/jpeg';
+    return { ...file, type };
   }
 
   async list(query: ListProfilesQueryDto) {
