@@ -5,7 +5,7 @@ import type { NextConfig } from 'next';
 
 /**
  * ค่าที่ frontend ใช้จาก .env ที่รากของ repo (ไฟล์เดียวกับ backend) — หยิบเฉพาะคีย์ของหน้าเว็บ
- * ไม่ดึงค่าอื่นอย่าง DATABASE_URL เข้ามาในโปรเซสของ Next.js (ARC-01)
+ * ไม่ดึงค่าอื่น (เช่น connection string ของฐานข้อมูล) เข้ามาในโปรเซสของ Next.js (ARC-01)
  */
 const rootEnv = resolve(process.cwd(), '..', '.env');
 if (existsSync(rootEnv)) {
