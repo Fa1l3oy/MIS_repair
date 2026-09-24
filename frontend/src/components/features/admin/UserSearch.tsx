@@ -27,19 +27,21 @@ export function UserSearch() {
   }, [q]);
 
   return (
-    <div className="relative md:max-w-md">
-      <label htmlFor="user-search" className="sr-only">
+    <div className="space-y-1 md:max-w-md">
+      <label htmlFor="user-search" className="block text-label-sm text-on-surface-variant">
         ค้นหาผู้ใช้
       </label>
-      <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
-      <input
-        id="user-search"
-        type="search"
-        value={q}
-        onChange={(event) => setQ(event.target.value)}
-        placeholder="ค้นหาชื่อ อีเมล หรือหน่วยงาน"
-        className={`${inputClass} pl-10`}
-      />
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
+        <input
+          id="user-search"
+          type="search"
+          value={q}
+          onChange={(event) => setQ(event.target.value)}
+          placeholder="ชื่อ อีเมล หรือหน่วยงาน"
+          className={`${inputClass} pl-10`}
+        />
+      </div>
     </div>
   );
 }

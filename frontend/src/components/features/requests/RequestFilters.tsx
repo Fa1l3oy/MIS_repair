@@ -69,19 +69,21 @@ export function RequestFilters({
 
   return (
     <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end" aria-busy={pending}>
-      <div className="relative min-w-0 flex-1 md:min-w-64">
-        <label htmlFor={ids.q} className="sr-only">
+      <div className="min-w-0 flex-1 space-y-1 md:min-w-64">
+        <label htmlFor={ids.q} className="block text-label-sm text-on-surface-variant">
           ค้นหา
         </label>
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
-        <input
-          id={ids.q}
-          type="search"
-          value={q}
-          onChange={(event) => setQ(event.target.value)}
-          placeholder="ค้นหาเลขที่ สิ่งที่ชำรุด สถานที่ หรือเลขครุภัณฑ์"
-          className={`${inputClass} pl-10`}
-        />
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
+          <input
+            id={ids.q}
+            type="search"
+            value={q}
+            onChange={(event) => setQ(event.target.value)}
+            placeholder="เลขที่ สิ่งที่ชำรุด สถานที่ หรือเลขครุภัณฑ์"
+            className={`${inputClass} pl-10`}
+          />
+        </div>
       </div>
       {showState ? (
         <Select

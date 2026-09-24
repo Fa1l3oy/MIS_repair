@@ -30,19 +30,21 @@ export function QrTagFilters({ buildings }: { buildings: { value: string; label:
 
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-end">
-      <div className="relative flex-1 md:max-w-md">
-        <label htmlFor="qr-search" className="sr-only">
+      <div className="flex-1 space-y-1 md:max-w-md">
+        <label htmlFor="qr-search" className="block text-label-sm text-on-surface-variant">
           ค้นหาสติกเกอร์
         </label>
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
-        <input
-          id="qr-search"
-          type="search"
-          value={q}
-          onChange={(event) => setQ(event.target.value)}
-          placeholder="ค้นหาสถานที่ อุปกรณ์ หรือเลขครุภัณฑ์"
-          className={`${inputClass} pl-10`}
-        />
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-outline" />
+          <input
+            id="qr-search"
+            type="search"
+            value={q}
+            onChange={(event) => setQ(event.target.value)}
+            placeholder="สถานที่ อุปกรณ์ หรือเลขครุภัณฑ์"
+            className={`${inputClass} pl-10`}
+          />
+        </div>
       </div>
       <div className="space-y-1 md:w-64">
         <label htmlFor="qr-building-filter" className="block text-label-sm text-on-surface-variant">

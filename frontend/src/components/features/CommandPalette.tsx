@@ -168,11 +168,11 @@ export function CommandPalette({ canSeeAll, isAdmin }: { canSeeAll: boolean; isA
             aria-label="ค้นหาด่วน"
             className="fade-slide-up relative w-full max-w-xl overflow-hidden rounded-xl bg-surface-container-lowest shadow-xl"
           >
+            <label htmlFor={inputId} className="block px-4 pt-3 text-label-sm text-on-surface-variant">
+              ค้นหาใบแจ้งซ่อมหรือเมนู
+            </label>
             <div className="flex items-center gap-3 border-b border-outline-variant/40 px-4">
               <SearchIcon className="h-5 w-5 shrink-0 text-outline" />
-              <label htmlFor={inputId} className="sr-only">
-                ค้นหาใบแจ้งซ่อมหรือเมนู
-              </label>
               <input
                 ref={input}
                 id={inputId}
@@ -185,7 +185,7 @@ export function CommandPalette({ canSeeAll, isAdmin }: { canSeeAll: boolean; isA
                 onChange={(event) => setQuery(event.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder="เลขที่ใบแจ้ง เช่น RP-6909-0012 หรือ แอร์ห้อง 201"
-                className="h-14 flex-1 rounded bg-transparent text-body-md text-on-surface placeholder:text-outline/70"
+                className="h-12 flex-1 rounded bg-transparent text-body-md text-on-surface placeholder:text-outline/70"
                 autoComplete="off"
               />
               <kbd className="hidden rounded border border-outline-variant px-1.5 text-caption text-on-surface-variant sm:block">
