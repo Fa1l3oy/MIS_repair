@@ -3,6 +3,8 @@ import type { SubsystemRole } from './role-mapping';
 /**
  * Permission ของโดเมนแจ้งซ่อม — รูปแบบ <resource>:<action>[:own|:any] (authorization.md ข้อ 4)
  * :own = record.core_user_id === token.sub (ตรวจกับข้อมูลจริงในชั้น service อีกชั้น)
+ *   - ใบแจ้งซ่อม: เจ้าของคือผู้แจ้ง (repair_requests.core_user_id)
+ *   - งานซ่อม (repair-job): "ของตัวเอง" คืองานที่ตัวเองเป็นช่างผู้รับผิดชอบ (assignee_core_user_id)
  */
 export const Permission = {
   REPAIR_REQUEST_CREATE: 'repair-request:create',
@@ -16,7 +18,6 @@ export const Permission = {
   REPAIR_JOB_UPDATE_OWN: 'repair-job:update:own',
   REPAIR_JOB_UPDATE_ANY: 'repair-job:update:any',
   REPAIR_JOB_ASSIGN: 'repair-job:assign',
-  REPAIR_REPORT_EXPORT: 'repair-report:export',
   STATISTICS_READ: 'statistics:read',
   BUILDING_READ: 'building:read',
   BUILDING_CREATE: 'building:create',
@@ -28,6 +29,7 @@ export const Permission = {
   CATEGORY_DELETE: 'category:delete',
   QR_TAG_READ: 'qr-tag:read',
   QR_TAG_CREATE: 'qr-tag:create',
+  QR_TAG_UPDATE: 'qr-tag:update',
   QR_TAG_DELETE: 'qr-tag:delete',
   PROFILE_READ_ANY: 'profile:read:any',
   PROFILE_UPDATE_OWN: 'profile:update:own',
@@ -40,6 +42,7 @@ export type PermissionValue = (typeof Permission)[keyof typeof Permission];
 
 const P = Permission;
 
+/** ผู้แจ้งซ่อม (นักศึกษา / บุคลากร) */
 const USER: PermissionValue[] = [
   P.REPAIR_REQUEST_CREATE,
   P.REPAIR_REQUEST_READ_OWN,
@@ -54,16 +57,17 @@ const USER: PermissionValue[] = [
   P.NOTIFICATION_UPDATE_OWN,
 ];
 
+/** ช่างซ่อมบำรุง — เห็นคิวงานทั้งหมด รับงาน และอัปเดตงานที่ตัวเองรับผิดชอบ */
 const TECHNICIAN: PermissionValue[] = [
   ...USER,
   P.REPAIR_REQUEST_READ_ANY,
   P.REPAIR_REQUEST_COMMENT_ANY,
   P.REPAIR_JOB_ACCEPT,
   P.REPAIR_JOB_UPDATE_OWN,
-  P.REPAIR_REPORT_EXPORT,
   P.STATISTICS_READ,
 ];
 
+/** ผู้ดูแลระบบแจ้งซ่อม — มอบหมาย/แก้งานของทุกคน และจัดการข้อมูลหลัก */
 const ADMIN: PermissionValue[] = [
   ...TECHNICIAN,
   P.REPAIR_JOB_UPDATE_ANY,
@@ -75,6 +79,7 @@ const ADMIN: PermissionValue[] = [
   P.CATEGORY_UPDATE,
   P.CATEGORY_DELETE,
   P.QR_TAG_CREATE,
+  P.QR_TAG_UPDATE,
   P.QR_TAG_DELETE,
   P.PROFILE_READ_ANY,
   P.PROFILE_UPDATE_ANY,

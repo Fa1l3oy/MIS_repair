@@ -11,3 +11,7 @@ generated/
 *.pem
 *.key
 !.env.example
+
+# รูปงานซ่อมที่ผู้ใช้อัปโหลด (UPLOAD_DIR)
+backend/uploads/
+uploads/

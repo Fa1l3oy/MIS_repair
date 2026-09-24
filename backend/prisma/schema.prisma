@@ -37,6 +37,7 @@ enum ActivityType {
   CREATED
   STATUS_CHANGED
   ASSIGNED
+  UPDATED // เปลี่ยนความเร่งด่วน / หมวดหมู่
   COMMENT
   RATED
 }
