@@ -1,3 +1,9 @@
 packages:
   - 'frontend'
   - 'backend'
+
+# pnpm 10 ไม่รัน build script ของ dependency ถ้าไม่อนุญาตไว้
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/engines'
+  - 'prisma'

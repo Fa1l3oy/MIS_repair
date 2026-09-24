@@ -1,0 +1,202 @@
+// csmju-repair — ฐานข้อมูลของระบบย่อยนี้เท่านั้น (repair_db)
+// ตาราง/คอลัมน์เป็น snake_case ผ่าน @@map/@map · field ใน Prisma เป็น camelCase
+// ผู้ใช้อ้างถึงด้วย core_user_id (claim `sub` จาก Core Hub) เท่านั้น — standards/docs/data-dictionary.md
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RequestStatus {
+  PENDING // รอรับเรื่อง
+  ACCEPTED // รับเรื่องแล้ว
+  IN_PROGRESS // กำลังดำเนินการ
+  ON_HOLD // รออะไหล่ / พักงาน
+  COMPLETED // ซ่อมเสร็จ
+  REJECTED // ไม่สามารถดำเนินการได้
+  CANCELLED // ผู้แจ้งยกเลิก
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ImageKind {
+  BEFORE // รูปที่ผู้แจ้งถ่ายตอนแจ้ง
+  AFTER // รูปหลังซ่อมโดยช่าง
+}
+
+enum ActivityType {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  COMMENT
+  RATED
+}
+
+/// ข้อมูล local ของผู้ใช้ในระบบนี้ (Core Hub v1.0 ยังไม่มี full_name / phone — data-dictionary.md ข้อ 1.3)
+/// ไม่ใช่ตาราง users: ไม่มีรหัสผ่าน ไม่มีการพิสูจน์ตัวตน · email/core_role เป็นสำเนาจาก token ที่ผ่านการตรวจแล้ว
+model Profile {
+  id           String    @id @default(uuid())
+  coreUserId   String    @unique @map("core_user_id") @db.VarChar(64)
+  email        String    @db.VarChar(254)
+  coreRole     String    @map("core_role") @db.VarChar(10)
+  displayName  String?   @map("display_name") @db.VarChar(100)
+  phone        String?   @db.VarChar(10)
+  /// ห้อง/หน่วยงานที่ติดต่อได้ (ข้อมูลติดต่อ ไม่ใช่ department กลางของ Core Hub)
+  workUnit     String?   @map("work_unit") @db.VarChar(100)
+  /// Layer 2: ผู้ดูแลระบบนี้แต่งตั้งบุคลากรเป็นช่าง (data-dictionary.md ข้อ 10 — Layer 2 Role เป็นของระบบย่อย)
+  isTechnician Boolean   @default(false) @map("is_technician")
+  lastSeenAt   DateTime? @map("last_seen_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  reportedRequests RepairRequest[]   @relation("Reporter")
+  assignedRequests RepairRequest[]   @relation("Assignee")
+  activities       RequestActivity[]
+  uploadedImages   RepairImage[]
+  notifications    Notification[]
+
+  @@map("profiles")
+}
+
+model Building {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(100)
+  code      String?  @db.VarChar(10)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  requests RepairRequest[]
+  qrTags   QrTag[]
+
+  @@map("buildings")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(100)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  requests RepairRequest[]
+  qrTags   QrTag[]
+
+  @@map("categories")
+}
+
+/// สติกเกอร์ QR ของจุดแจ้งซ่อม — สแกนแล้วเปิดฟอร์มที่กรอกสถานที่ไว้ให้
+model QrTag {
+  id          String   @id @default(uuid())
+  code        String   @unique @db.VarChar(16) // รหัสสั้นที่อยู่ใน QR
+  floor       Int?     @db.SmallInt
+  location    String   @db.VarChar(150)
+  equipment   String?  @db.VarChar(150)
+  assetNumber String?  @map("asset_number") @db.VarChar(50)
+  buildingId  String   @map("building_id")
+  categoryId  String?  @map("category_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  building Building        @relation(fields: [buildingId], references: [id])
+  category Category?       @relation(fields: [categoryId], references: [id])
+  requests RepairRequest[]
+
+  @@map("qr_tags")
+}
+
+model RepairRequest {
+  id                 String        @id @default(uuid())
+  code               String        @unique @db.VarChar(20) // เลขที่ใบแจ้งซ่อม เช่น RP-202609-0001
+  equipment          String        @db.VarChar(150)
+  assetNumber        String?       @map("asset_number") @db.VarChar(50)
+  description        String        @db.VarChar(2000)
+  floor              Int?          @db.SmallInt
+  location           String        @db.VarChar(150)
+  priority           Priority      @default(MEDIUM)
+  status             RequestStatus @default(PENDING)
+  rating             Int?          @db.SmallInt
+  feedback           String?       @db.VarChar(500)
+  completedAt        DateTime?     @map("completed_at")
+  /// ผู้แจ้ง (เจ้าของใบแจ้งซ่อม — record.core_user_id === token.sub)
+  coreUserId         String        @map("core_user_id") @db.VarChar(64)
+  assigneeCoreUserId String?       @map("assignee_core_user_id") @db.VarChar(64)
+  buildingId         String        @map("building_id")
+  categoryId         String        @map("category_id")
+  qrTagId            String?       @map("qr_tag_id")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  reporter   Profile           @relation("Reporter", fields: [coreUserId], references: [coreUserId])
+  assignee   Profile?          @relation("Assignee", fields: [assigneeCoreUserId], references: [coreUserId])
+  building   Building          @relation(fields: [buildingId], references: [id])
+  category   Category          @relation(fields: [categoryId], references: [id])
+  qrTag      QrTag?            @relation(fields: [qrTagId], references: [id], onDelete: SetNull)
+  images     RepairImage[]
+  activities RequestActivity[]
+
+  @@index([status])
+  @@index([coreUserId])
+  @@index([assigneeCoreUserId])
+  @@map("repair_requests")
+}
+
+model RepairImage {
+  id                 String    @id @default(uuid())
+  filename           String    @unique @db.VarChar(100)
+  mimeType           String    @map("mime_type") @db.VarChar(50)
+  size               Int
+  kind               ImageKind @default(BEFORE)
+  repairRequestId    String    @map("repair_request_id")
+  uploaderCoreUserId String    @map("uploader_core_user_id") @db.VarChar(64)
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  repairRequest RepairRequest @relation(fields: [repairRequestId], references: [id], onDelete: Cascade)
+  uploader      Profile       @relation(fields: [uploaderCoreUserId], references: [coreUserId])
+
+  @@map("repair_images")
+}
+
+model RequestActivity {
+  id              String         @id @default(uuid())
+  type            ActivityType
+  fromStatus      RequestStatus? @map("from_status")
+  toStatus        RequestStatus? @map("to_status")
+  message         String?        @db.VarChar(2000)
+  repairRequestId String         @map("repair_request_id")
+  actorCoreUserId String         @map("actor_core_user_id") @db.VarChar(64)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  repairRequest RepairRequest @relation(fields: [repairRequestId], references: [id], onDelete: Cascade)
+  actor         Profile       @relation(fields: [actorCoreUserId], references: [coreUserId])
+
+  @@index([repairRequestId, createdAt])
+  @@map("request_activities")
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  title      String   @db.VarChar(200)
+  message    String   @db.VarChar(2000)
+  link       String?  @db.VarChar(300) // path ภายในระบบ เช่น /requests/<id>
+  isRead     Boolean  @default(false) @map("is_read")
+  coreUserId String   @map("core_user_id") @db.VarChar(64) // ผู้รับ
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  recipient Profile @relation(fields: [coreUserId], references: [coreUserId], onDelete: Cascade)
+
+  @@index([coreUserId, isRead])
+  @@map("notifications")
+}
