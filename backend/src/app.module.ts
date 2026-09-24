@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+import { BuildingsModule } from './buildings/buildings.module';
+import { CategoriesModule } from './categories/categories.module';
 import { EnvelopeInterceptor } from './common/envelope.interceptor';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import { createValidationPipe } from './common/validation';
@@ -9,7 +11,7 @@ import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [AppConfigModule, PrismaModule, AuthModule],
+  imports: [AppConfigModule, PrismaModule, AuthModule, BuildingsModule, CategoriesModule],
   controllers: [HealthController],
   providers: [
     { provide: APP_PIPE, useFactory: createValidationPipe },

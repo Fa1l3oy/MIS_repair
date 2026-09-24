@@ -1,7 +1,13 @@
 import { Controller, Get, Inject } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
+import { ApiEnvelope } from '../common/swagger';
 import { APP_CONFIG, type AppConfig } from '../config/configuration';
+
+export class HealthDto {
+  @ApiProperty({ enum: ['ok'] }) status: 'ok';
+  @ApiProperty({ example: 'csmju-repair', description: 'ต้องตรงกับ name ใน subsystem.yaml' }) service: string;
+}
 
 /** GET /api/health — public · data.service ต้องตรงกับ name ใน subsystem.yaml และทะเบียน Core Hub */
 @ApiTags('health')
@@ -11,7 +17,9 @@ export class HealthController {
 
   @Public()
   @Get()
-  health() {
+  @ApiOperation({ summary: 'ตรวจสถานะระบบ (public)' })
+  @ApiEnvelope(HealthDto)
+  health(): HealthDto {
     return { status: 'ok', service: this.config.subsystemId };
   }
 }

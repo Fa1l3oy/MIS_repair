@@ -1,5 +1,6 @@
 import type { Profile } from '../../generated/prisma/client';
 import { resolveSubsystemRole } from '../auth/role-mapping';
+import type { ProfileDto } from './profiles.dto';
 
 export function displayNameOf(profile: Pick<Profile, 'displayName' | 'email'>) {
   return profile.displayName?.trim() || profile.email.split('@')[0];
@@ -18,7 +19,7 @@ export function toPersonView(profile: PersonSource) {
   };
 }
 
-export function toProfileView(profile: Profile) {
+export function toProfileView(profile: Profile): ProfileDto {
   return {
     id: profile.id,
     coreUserId: profile.coreUserId,
@@ -35,5 +36,4 @@ export function toProfileView(profile: Profile) {
   };
 }
 
-export type ProfileView = ReturnType<typeof toProfileView>;
 export type PersonView = ReturnType<typeof toPersonView>;

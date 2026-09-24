@@ -73,3 +73,48 @@ export class UpdateProfileDto {
   @IsBoolean({ message: 'isTechnician ต้องเป็น true หรือ false' })
   isTechnician: boolean;
 }
+
+const CORE_ROLE_VALUES = ['student', 'alumni', 'staff', 'admin'];
+
+/** ผู้ใช้ที่เคยเข้าระบบนี้ (มุมมองของผู้ดูแลระบบ) */
+export class ProfileDto {
+  @ApiProperty({ format: 'uuid', description: 'id ของโปรไฟล์ในระบบนี้ (ใช้กับ PATCH /profiles/:id)' })
+  id: string;
+  @ApiProperty({ example: 'user-003', description: 'claim `sub` จาก Core Hub' }) coreUserId: string;
+  @ApiProperty({ example: 'staff@core.local' }) email: string;
+  @ApiProperty({ enum: CORE_ROLE_VALUES }) coreRole: string;
+  @ApiProperty({
+    enum: SUBSYSTEM_ROLES,
+    nullable: true,
+    description: 'null = core role นี้เข้าระบบไม่ได้แล้ว',
+  })
+  subsystemRole: SubsystemRole | null;
+  @ApiProperty() isTechnician: boolean;
+  @ApiProperty({ example: 'สมชาย ใจดี' }) displayName: string;
+  @ApiProperty({ type: String, nullable: true, example: '0812345678' }) phone: string | null;
+  @ApiProperty({ type: String, nullable: true, example: 'งานอาคารสถานที่' }) workUnit: string | null;
+  @ApiProperty({ type: String, format: 'date-time', nullable: true }) lastSeenAt: string | null;
+  @ApiProperty({ format: 'date-time' }) createdAt: string;
+  @ApiProperty({ format: 'date-time' }) updatedAt: string;
+}
+
+/** ตัวตนของผู้เรียก — GET /api/v1/me */
+export class MeDto {
+  @ApiProperty({ example: 'user-003', description: 'เท่ากับ claim `sub` ของ token' }) id: string;
+  @ApiProperty({ example: 'staff@core.local' }) email: string;
+  @ApiProperty({ enum: CORE_ROLE_VALUES, description: 'เท่ากับ claim `role` ของ token' }) coreRole: string;
+  @ApiProperty({ enum: SUBSYSTEM_ROLES }) subsystemRole: SubsystemRole;
+  @ApiProperty({ type: [String], example: ['repair-request:create', 'repair-request:read:own'] })
+  permissions: string[];
+  @ApiProperty({ example: 'สมชาย ใจดี', description: 'ถ้ายังไม่ตั้งชื่อ จะใช้ส่วนหน้าของอีเมล' })
+  displayName: string;
+  @ApiProperty({ description: 'false = ยังไม่ได้ตั้งชื่อที่แสดง (ควรชวนผู้ใช้กรอกโปรไฟล์)' })
+  hasDisplayName: boolean;
+  @ApiProperty({ type: String, nullable: true }) phone: string | null;
+  @ApiProperty({ type: String, nullable: true }) workUnit: string | null;
+  @ApiProperty({
+    format: 'date-time',
+    description: 'token หมดอายุเมื่อไร — ต้องเข้าผ่าน Core Hub ใหม่หลังจากนี้',
+  })
+  sessionExpiresAt: string;
+}
