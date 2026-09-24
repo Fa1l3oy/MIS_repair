@@ -241,6 +241,13 @@
     animation-duration: 1.8s !important;
     animation-iteration-count: infinite !important;
   }
+
+  /* ข้อความ/โลโก้ในแถบเมนู: แถบกาง-หุบทันที แต่ให้จางเข้า-ออกสั้น ๆ (การจางไม่ใช่การเคลื่อนที่) ไม่ให้กระพริบ */
+  .motion-fade {
+    transition-property: opacity !important;
+    transition-duration: 150ms !important;
+    transition-delay: 0s !important;
+  }
 }
 
 /* ใบงานซ่อม / สติกเกอร์ QR: พิมพ์เฉพาะเนื้อหา (ส่วนที่ไม่พิมพ์ใช้ class print:hidden) */

@@ -87,11 +87,11 @@ export function CsmjuAppShell({
   const onPointerEnter = (event: React.PointerEvent) => {
     if (event.pointerType === 'touch') return;
     window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(() => setHovered(true), 80);
+    hoverTimer.current = window.setTimeout(() => setHovered(true), 90);
   };
   const onPointerLeave = () => {
     window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(() => setHovered(false), 200);
+    hoverTimer.current = window.setTimeout(() => setHovered(false), 150);
   };
   useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
@@ -136,23 +136,28 @@ export function CsmjuAppShell({
   const isActive = (item: ShellNavItem) =>
     item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-  /** rail = แถบบนจอใหญ่ (หุบ/กางได้ + ปุ่มตรึง) · drawer มือถือกางเต็มเสมอ */
+  /**
+   * rail = แถบบนจอใหญ่ (หุบ/กางได้ + ปุ่มตรึง) · drawer มือถือกางเต็มเสมอ
+   * ความลื่น: ทุกปุ่ม/เมนูกว้างเต็ม "ตามความกว้างของแถบ" จึงยืด-หดไปพร้อมกับ animation ของแถบเอง
+   * ไอคอนอยู่ตำแหน่งเดิมตลอด · ข้อความค่อย ๆ จางเข้าหลังแถบเริ่มกาง และจางออกเร็วตอนหุบ
+   */
   const renderSidebar = (open: boolean, rail: boolean) => {
-    const itemWidth = open ? 'w-full' : 'w-12';
-    const fade = `whitespace-nowrap transition-opacity duration-150 ${open ? 'opacity-100 delay-75' : 'opacity-0'}`;
-    const onDarkItem = `flex min-h-11 items-center gap-2 overflow-hidden rounded-lg border border-white/25 bg-white/10 px-4 text-label-md text-white backdrop-blur-sm transition-colors hover:bg-white/20 ${focusRingOnDark} ${itemWidth}`;
+    const label = `motion-fade whitespace-nowrap transition-[opacity,transform] ease-out ${
+      open ? 'translate-x-0 opacity-100 delay-100 duration-200' : '-translate-x-1 opacity-0 duration-100'
+    }`;
+    const onDarkItem = `flex min-h-11 w-full items-center gap-2 overflow-hidden rounded-lg border border-white/25 bg-white/10 px-4 text-label-md text-white backdrop-blur-sm transition-colors hover:bg-white/20 ${focusRingOnDark}`;
     return (
-      <div className="flex h-full w-64 flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-6 text-white">
+      <div className="flex h-full w-full flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-6 text-white">
         <div className="relative h-32 shrink-0">
           <span
             aria-hidden="true"
-            className={`absolute left-0 top-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-primary-container shadow-sm transition-opacity duration-150 ${
-              open ? 'opacity-0' : 'opacity-100'
+            className={`motion-fade absolute left-0 top-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white text-primary-container shadow-sm transition-[opacity,transform] ease-out ${
+              open ? 'scale-90 opacity-0 duration-100' : 'scale-100 opacity-100 delay-75 duration-200'
             }`}
           >
             <Icons.BuildIcon className="h-6 w-6" />
           </span>
-          <div className={`absolute inset-x-0 top-0 space-y-3 ${fade}`}>
+          <div className={`absolute left-0 top-0 w-[232px] space-y-3 ${label}`}>
             <CsmjuLogo framed priority />
             <div>
               <p className="text-label-md text-white">{displayName}</p>
@@ -163,10 +168,10 @@ export function CsmjuAppShell({
         {primaryAction ? (
           <Link
             href={primaryAction.href}
-            className={`btn-gradient relative flex h-11 shrink-0 items-center gap-3 overflow-hidden rounded-lg px-4 text-label-md text-on-primary shadow-md ${focusRingOnDark} ${itemWidth}`}
+            className={`btn-gradient relative flex h-11 w-full shrink-0 items-center gap-3 overflow-hidden rounded-lg px-4 text-label-md text-on-primary shadow-md ${focusRingOnDark}`}
           >
             <Icons.AddIcon className="h-4 w-4 shrink-0" />
-            <span className={fade}>{primaryAction.label}</span>
+            <span className={label}>{primaryAction.label}</span>
           </Link>
         ) : null}
         <nav aria-label="เมนูของระบบ" className="flex-1">
@@ -179,14 +184,14 @@ export function CsmjuAppShell({
                   <Link
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
-                    className={`flex min-h-11 items-center gap-3 overflow-hidden rounded-lg py-2 transition-colors duration-200 ${focusRingOnDark} ${itemWidth} ${
+                    className={`flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-lg py-2 transition-colors duration-200 ${focusRingOnDark} ${
                       active
                         ? 'border-l-4 border-accent bg-white/10 pl-2.5 pr-3.5 text-white'
                         : 'px-3.5 text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
-                    <span className={`min-w-0 ${fade}`}>
+                    <span className={`min-w-0 ${label}`}>
                       <span className="block text-label-md">{item.label}</span>
                       {item.labelEn ? (
                         <span lang="en" className="block text-caption text-white/50">
@@ -206,19 +211,19 @@ export function CsmjuAppShell({
               type="button"
               onClick={togglePinned}
               aria-pressed={pinned}
-              className={`flex min-h-11 items-center gap-3 overflow-hidden rounded-lg px-3.5 py-2 text-label-md text-white/70 transition-colors hover:bg-white/5 hover:text-white ${focusRingOnDark} ${itemWidth}`}
+              className={`flex min-h-11 w-full items-center gap-3 overflow-hidden rounded-lg px-3.5 py-2 text-label-md text-white/70 transition-colors hover:bg-white/5 hover:text-white ${focusRingOnDark}`}
             >
               <Icons.PushPinIcon filled={pinned} className="h-5 w-5 shrink-0" />
-              <span className={fade}>{pinned ? 'เลิกตรึงแถบเมนู' : 'ตรึงแถบเมนูไว้'}</span>
+              <span className={label}>{pinned ? 'เลิกตรึงแถบเมนู' : 'ตรึงแถบเมนูไว้'}</span>
             </button>
           ) : null}
           <a href={homeHref} className={onDarkItem}>
             <Icons.HomeIcon className="h-4 w-4 shrink-0" />
-            <span className={fade}>กลับหน้าหลัก</span>
+            <span className={label}>กลับหน้าหลัก</span>
           </a>
           <a href={logoutHref} className={onDarkItem}>
             <Icons.LogoutIcon className="h-4 w-4 shrink-0" />
-            <span className={fade}>ออกจากระบบ</span>
+            <span className={label}>ออกจากระบบ</span>
           </a>
         </div>
       </div>
@@ -242,8 +247,10 @@ export function CsmjuAppShell({
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setKeyboardFocus(false);
         }}
-        className={`brand-gradient fixed inset-y-0 left-0 z-30 hidden overflow-hidden shadow-xl transition-[width] duration-200 ease-out md:block print:hidden ${
-          expanded ? 'w-64' : 'w-[72px]'
+        className={`brand-gradient fixed inset-y-0 left-0 z-30 hidden overflow-hidden shadow-xl transition-[width] md:block print:hidden ${
+          expanded
+            ? 'w-64 duration-300 ease-[cubic-bezier(0.2,0,0,1)]'
+            : 'w-[72px] duration-200 ease-[cubic-bezier(0.3,0,0.8,0.15)]'
         }`}
       >
         {renderSidebar(expanded, true)}
@@ -278,7 +285,9 @@ export function CsmjuAppShell({
       </aside>
 
       <div
-        className={`flex min-h-dvh flex-col transition-[padding] duration-200 ease-out ${pinned ? 'md:pl-64' : 'md:pl-[72px]'}`}
+        className={`flex min-h-dvh flex-col transition-[padding] duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
+          pinned ? 'md:pl-64' : 'md:pl-[72px]'
+        }`}
       >
         <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-surface-variant bg-surface-container-lowest px-4 shadow-sm md:px-8 print:hidden">
           <button
