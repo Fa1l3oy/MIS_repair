@@ -4,7 +4,8 @@ RUN corepack enable
 WORKDIR /repo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # postinstall รัน prisma generate จึงต้องมี schema + config ก่อน install
-COPY backend/package.json backend/prisma.config.ts backend/
+# รวม tsconfig.json ด้วย — Prisma ดูจากไฟล์นี้ว่าจะสร้าง client แบบ CommonJS หรือ ESM
+COPY backend/package.json backend/prisma.config.ts backend/tsconfig.json backend/
 COPY backend/prisma backend/prisma
 RUN pnpm install --frozen-lockfile --filter backend...
 COPY backend backend
