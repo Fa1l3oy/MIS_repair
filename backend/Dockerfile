@@ -3,7 +3,9 @@ FROM node:22-alpine AS build
 RUN corepack enable
 WORKDIR /repo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY backend/package.json backend/
+# postinstall รัน prisma generate จึงต้องมี schema + config ก่อน install
+COPY backend/package.json backend/prisma.config.ts backend/
+COPY backend/prisma backend/prisma
 RUN pnpm install --frozen-lockfile --filter backend...
 COPY backend backend
 RUN pnpm --filter backend build \

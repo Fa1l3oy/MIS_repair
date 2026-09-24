@@ -57,6 +57,7 @@ services:
       args:
         NEXT_PUBLIC_CORE_HUB_URL: ${NEXT_PUBLIC_CORE_HUB_URL:-http://localhost:3000}
         NEXT_PUBLIC_SUBSYSTEM_ID: csmju-repair
+        BACKEND_URL: http://backend:3002
     environment:
       BACKEND_URL: http://backend:3002
     ports:

@@ -1,0 +1,14 @@
+# ไม่ส่งค่าลับ ไฟล์ที่ build แล้ว และรูปที่ผู้ใช้อัปโหลดเข้า build context
+.env
+.env.*
+!.env.example
+**/node_modules
+**/.next
+**/dist
+**/generated
+**/coverage
+**/*.tsbuildinfo
+backend/uploads
+uploads
+.git
+standards
