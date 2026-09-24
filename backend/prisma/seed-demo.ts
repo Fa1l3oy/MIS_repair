@@ -29,7 +29,7 @@ const EMAIL_DOMAIN = '@demo.csmju.invalid';
 const QR_PREFIX = 'DEMQ';
 const QR_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const REQUEST_COUNT = 190;
-const RECENT_COUNT = 14;
+const RECENT_COUNT = 8;
 const HISTORY_DAYS = 180;
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -1126,14 +1126,20 @@ async function main() {
   // วันที่แจ้ง: เดือนหลัง ๆ ใช้งานมากขึ้น วันหยุดน้อยลง
   const days: number[] = [];
   while (days.length < REQUEST_COUNT) {
-    const daysAgo = HISTORY_DAYS * Math.pow(rand(), 1.35);
+    const daysAgo = HISTORY_DAYS * (1 - Math.sqrt(rand())); // ใช้งานเพิ่มขึ้นแบบเส้นตรงตั้งแต่เริ่มระบบ
     const day = bangkokDayStart(now - daysAgo * DAY);
     const weekday = new Date(day + 7 * HOUR).getUTCDay();
     if ((weekday === 0 || weekday === 6) && chance(0.75)) continue;
     days.push(day);
   }
-  // งานที่เพิ่งแจ้งในช่วง 3 วันล่าสุด — ให้คิวงานมีงานค้างเหมือนวันทำงานจริง
-  for (let i = 0; i < RECENT_COUNT; i++) days.push(bangkokDayStart(now - Math.floor(rand() * 4) * DAY));
+  // งานที่เพิ่งแจ้งในวันทำการล่าสุด — ให้คิวงานมีงานค้างเหมือนวันทำงานจริง
+  for (let added = 0; added < RECENT_COUNT;) {
+    const day = bangkokDayStart(now - Math.floor(rand() * 6) * DAY);
+    const weekday = new Date(day + 7 * HOUR).getUTCDay();
+    if (weekday === 0 || weekday === 6) continue;
+    days.push(day);
+    added++;
+  }
   days.sort((a, b) => a - b);
 
   const plans: Plan[] = [];
