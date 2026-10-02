@@ -1,20 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { cardClass, PageHeader, tdClass, thClass } from '@/csmju';
+import { CheckCircleIcon, ScheduleIcon, StarIcon, WarningIcon } from '@/components/shared/icons';
 import {
-  cardClass,
   cardHeaderClass,
   cardTitleClass,
-  CheckCircleIcon,
-  PageHeader,
-  ScheduleIcon,
-  StarIcon,
   tableClass,
   tbodyRowClass,
-  tdClass,
   theadRowClass,
-  thClass,
-  WarningIcon,
-} from '@/csmju';
+} from '@/components/shared/ui';
 import { BarList, TrendChart } from '@/components/features/charts';
 import { StatCard } from '@/components/features/StatCard';
 import { ApiFailure } from '@/components/shared/ApiFailure';
@@ -57,31 +51,31 @@ export default async function DashboardPage(props: PageProps<'/dashboard'>) {
 
   return (
     <>
-      <PageHeader
-        title="สถิติงานซ่อม"
-        description={`ช่วง ${formatDate(`${s.range.from}T12:00:00+07:00`)} – ${formatDate(`${s.range.to}T12:00:00+07:00`)} · ตัวเลข “ตอนนี้” ไม่ขึ้นกับช่วงวันที่`}
-        actions={
-          <nav
-            aria-label="ช่วงเวลา"
-            className="flex flex-wrap gap-1 rounded-lg border border-outline-variant p-1"
-          >
-            {(Object.keys(RANGES) as RangeKey[]).map((key) => (
-              <Link
-                key={key}
-                href={key === '30d' ? '/dashboard' : `/dashboard?range=${key}`}
-                aria-current={key === range ? 'page' : undefined}
-                className={`inline-flex min-h-11 items-center rounded-md px-3 text-label-md transition-colors ${
-                  key === range
-                    ? 'bg-primary-container/10 text-primary-container'
-                    : 'text-on-surface-variant hover:bg-surface'
-                }`}
-              >
-                {RANGES[key].label}
-              </Link>
-            ))}
-          </nav>
-        }
-      />
+      <div className="space-y-4">
+        <PageHeader
+          title="สถิติงานซ่อม"
+          description={`ช่วง ${formatDate(`${s.range.from}T12:00:00+07:00`)} – ${formatDate(`${s.range.to}T12:00:00+07:00`)} · ตัวเลข “ตอนนี้” ไม่ขึ้นกับช่วงวันที่`}
+        />
+        <nav
+          aria-label="ช่วงเวลา"
+          className="fade-slide-up flex w-fit max-w-full flex-wrap gap-1 rounded-lg border border-outline-variant p-1"
+        >
+          {(Object.keys(RANGES) as RangeKey[]).map((key) => (
+            <Link
+              key={key}
+              href={key === '30d' ? '/dashboard' : `/dashboard?range=${key}`}
+              aria-current={key === range ? 'page' : undefined}
+              className={`inline-flex min-h-11 items-center rounded-md px-3 text-label-md transition-colors ${
+                key === range
+                  ? 'bg-primary-container/10 text-primary-container'
+                  : 'text-on-surface-variant hover:bg-surface'
+              }`}
+            >
+              {RANGES[key].label}
+            </Link>
+          ))}
+        </nav>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard

@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { inputClass, primaryButtonClass } from '@/csmju';
+import { inputClass } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { describedBy, FormField } from '@/components/shared/FormField';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
@@ -111,7 +112,7 @@ export function ProfileForm({ me }: { me: Me }) {
         <input {...field('workUnit', 'x')} maxLength={100} autoComplete="organization" />
       </FormField>
       <div className="flex justify-end gap-3 pt-2">
-        <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+        <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
           บันทึก
         </LoadingButton>
       </div>

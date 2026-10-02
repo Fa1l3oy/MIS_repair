@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { inputClass, primaryButtonClass, secondaryButtonClass } from '@/csmju';
+import { inputClass } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { describedBy, FormField } from '@/components/shared/FormField';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
@@ -346,12 +347,12 @@ export function NewRequestForm({
         <button
           type="button"
           onClick={() => router.back()}
-          className={secondaryButtonClass}
+          className={buttonClass.secondary}
           disabled={submitting}
         >
           ยกเลิก
         </button>
-        <LoadingButton type="submit" loading={submitting} className={primaryButtonClass}>
+        <LoadingButton type="submit" loading={submitting} className={buttonClass.primary}>
           ส่งใบแจ้งซ่อม
         </LoadingButton>
       </div>

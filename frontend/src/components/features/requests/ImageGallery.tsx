@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon, ZoomInIcon } from '@/csmju';
+import { CloseIcon } from '@/csmju';
+import { ChevronLeftIcon, ChevronRightIcon, ZoomInIcon } from '@/components/shared/icons';
 import { formatDateTime } from '@/lib/format';
 import type { RepairImage } from '@/lib/types';
 

@@ -1,14 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import {
-  cardClass,
-  CheckCircleIcon,
-  InboxIcon,
-  PageHeader,
-  SearchIcon,
-  secondaryButtonClass,
-  Tabs,
-} from '@/csmju';
+import { cardClass, PageHeader, SearchIcon } from '@/csmju';
+import { CheckCircleIcon, InboxIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { CsvExportButton } from '@/components/features/requests/CsvExportButton';
 import { RequestFilters } from '@/components/features/requests/RequestFilters';
 import { RequestList } from '@/components/features/requests/RequestList';
@@ -16,6 +10,7 @@ import { ApiFailure } from '@/components/shared/ApiFailure';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ForbiddenState } from '@/components/shared/ForbiddenState';
 import { Pagination } from '@/components/shared/Pagination';
+import { RouteTabs } from '@/components/shared/RouteTabs';
 import { can, P } from '@/lib/permissions';
 import { forwardQuery, serverApi } from '@/lib/server-api';
 import { getCatalog, getMe } from '@/lib/session';
@@ -63,11 +58,10 @@ export default async function QueuePage(props: PageProps<'/queue'>) {
   const tabs = (Object.keys(TABS) as TabKey[]).map((key, index) => {
     const count = counts[index];
     return {
-      key,
+      id: key,
       label: TABS[key].label,
       href: key === 'pending' ? '/queue' : `/queue?tab=${key}`,
       count: count && count.ok ? count.meta?.total : undefined,
-      tone: key === 'overdue' ? ('error' as const) : undefined,
     };
   });
   const filtered = FILTERS.some((key) => key !== 'page' && key !== 'sort' && params[key]);
@@ -80,7 +74,7 @@ export default async function QueuePage(props: PageProps<'/queue'>) {
       />
       <section className={cardClass} aria-label={TABS[tab].label}>
         <div className="px-4 pt-2 md:px-6">
-          <Tabs items={tabs} active={tab} label="ประเภทงาน" />
+          <RouteTabs tabs={tabs} active={tab} />
         </div>
         <div className="flex flex-col gap-4 border-b border-outline-variant/40 px-4 py-5 md:px-6">
           <RequestFilters
@@ -107,7 +101,7 @@ export default async function QueuePage(props: PageProps<'/queue'>) {
               action={
                 <Link
                   href={tab === 'pending' ? '/queue' : `/queue?tab=${tab}`}
-                  className={secondaryButtonClass}
+                  className={buttonClass.secondary}
                 >
                   ล้างตัวกรอง
                 </Link>
@@ -126,7 +120,9 @@ export default async function QueuePage(props: PageProps<'/queue'>) {
                       : 'ยังไม่มีงาน'
               }
               description={
-                tab === 'pending' ? 'งานใหม่จะแสดงที่นี่ และแจ้งเตือนทางกระดิ่งทันทีที่มีคนแจ้ง' : undefined
+                tab === 'pending'
+                  ? 'งานใหม่จะแสดงที่นี่ และแจ้งในหน้าการแจ้งเตือนทันทีที่มีคนแจ้ง'
+                  : undefined
               }
             />
           )

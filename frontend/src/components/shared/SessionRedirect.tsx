@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CsmjuLogo, primaryButtonClass } from '@/csmju';
+import { CsmjuLogo } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { coreHubLoginUrl, DISPLAY_NAME } from '@/lib/config';
 
 const GUARD_KEY = 'csmju-sso-redirects';
@@ -51,7 +52,7 @@ export function SessionRedirect() {
           </p>
         </div>
         {loginUrl ? (
-          <a href={loginUrl} className={`${primaryButtonClass} w-full py-3`}>
+          <a href={loginUrl} className={`${buttonClass.primary} w-full py-3`}>
             เข้าสู่ระบบผ่าน CSMJU Portal
           </a>
         ) : (

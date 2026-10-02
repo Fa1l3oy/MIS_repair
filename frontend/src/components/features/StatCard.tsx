@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { ComponentType, ReactNode } from 'react';
-import type { IconProps } from '@/csmju';
+import type { IconProps } from '@/components/shared/icons';
 import { formatNumber } from '@/lib/format';
 
 /**

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { cardClass, InfoIcon, linkClass, PageHeader, QrCodeIcon } from '@/csmju';
+import { cardClass, PageHeader } from '@/csmju';
+import { InfoIcon, QrCodeIcon } from '@/components/shared/icons';
+import { linkClass } from '@/components/shared/ui';
 import { NewRequestForm, type RequestDraft } from '@/components/features/requests/NewRequestForm';
 import { RequestStatusBadge } from '@/components/features/requests/badges';
 import { ForbiddenState } from '@/components/shared/ForbiddenState';

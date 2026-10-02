@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { inputClass, primaryButtonClass, SendIcon } from '@/csmju';
+import { inputClass } from '@/csmju';
+import { SendIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
 import { api, ApiRequestError } from '@/lib/api';
@@ -65,7 +67,7 @@ export function CommentBox({ requestId, placeholder }: { requestId: string; plac
         </p>
       ) : null}
       <div className="flex justify-end">
-        <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+        <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
           <SendIcon className="h-4 w-4" />
           ส่งความคิดเห็น
         </LoadingButton>

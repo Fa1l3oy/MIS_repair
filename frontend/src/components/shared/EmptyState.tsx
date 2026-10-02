@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react';
-import { InventoryIcon, type IconProps } from '@/csmju';
+import { type IconProps, InventoryIcon } from '@/components/shared/icons';
 
 /**
  * Empty state (ui-design-system.md ข้อ 9.2): ไอคอนเบา ๆ + เหตุผลที่ว่าง + ปุ่มทางออก
@@ -11,12 +11,15 @@ export function EmptyState({
   action,
   icon: Icon = InventoryIcon,
   compact = false,
+  heading: Heading = 'h2',
 }: {
   title: string;
   description?: ReactNode;
   action?: ReactNode;
   icon?: ComponentType<IconProps>;
   compact?: boolean;
+  /** h1 เมื่อ EmptyState แทนเนื้อหาทั้งหน้า (not-found) · h2 เมื่ออยู่ในการ์ด */
+  heading?: 'h1' | 'h2';
 }) {
   return (
     <div
@@ -26,7 +29,15 @@ export function EmptyState({
         <Icon className="h-6 w-6" />
       </span>
       <div className="max-w-md space-y-1">
-        <h2 className="text-label-md text-on-surface">{title}</h2>
+        <Heading
+          className={
+            Heading === 'h1'
+              ? 'font-display text-headline-md text-on-surface'
+              : 'text-label-md text-on-surface'
+          }
+        >
+          {title}
+        </Heading>
         {description ? <p className="text-body-md text-on-surface-variant">{description}</p> : null}
       </div>
       {action ? <div className="flex flex-wrap justify-center gap-3">{action}</div> : null}

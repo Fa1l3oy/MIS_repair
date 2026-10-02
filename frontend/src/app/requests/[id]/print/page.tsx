@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { ArrowBackIcon, CsmjuLogo, secondaryButtonClass } from '@/csmju';
+import { ArrowBackIcon, CsmjuLogo } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { OriginQrCode } from '@/components/features/OriginQrCode';
 import { PrintButton } from '@/components/features/PrintButton';
 import { ApiFailure } from '@/components/shared/ApiFailure';
@@ -27,14 +28,14 @@ export default async function PrintWorkOrderPage(props: PageProps<'/requests/[id
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <Link href={`/requests/${r.id}`} className={secondaryButtonClass}>
+        <Link href={`/requests/${r.id}`} className={buttonClass.secondary}>
           <ArrowBackIcon className="h-4 w-4" />
           กลับไปที่ใบแจ้งซ่อม
         </Link>
         <PrintButton label="พิมพ์ใบงาน" />
       </div>
 
-      <article className="print-sheet mx-auto max-w-3xl space-y-6 rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-8 text-on-surface shadow-sm">
+      <article className="mx-auto max-w-3xl space-y-6 rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-8 text-on-surface shadow-sm print:max-w-none print:rounded-none print:border-0 print:p-0 print:shadow-none">
         <header className="flex items-start justify-between gap-6 border-b border-outline-variant pb-6">
           <div className="space-y-3">
             <CsmjuLogo />

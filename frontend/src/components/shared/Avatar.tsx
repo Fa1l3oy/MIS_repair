@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { initialsOf } from './initials';
+import { initialsOf } from '@/lib/initials';
 
 /** ขนาดตัวอักษรของอักษรย่อตามขนาดวงกลม (ใช้ type scale เดิม ไม่ตั้ง px เอง) */
 const textClassFor = (size: number) =>
@@ -15,7 +15,8 @@ const textClassFor = (size: number) =>
         : 'text-label-sm';
 
 /**
- * avatar วงกลม — รูปโปรไฟล์ถ้ามี ไม่งั้นอักษรย่อบนพื้น primary-container (สเปคเมนูผู้ใช้ ข้อ 5.1)
+ * Avatar (ui-design-system.md ข้อ 7.2.1, 14) — local component ชั่วคราว เพราะ template ยังไม่มี Avatar แยก
+ * รูปโปรไฟล์ถ้ามี ไม่งั้นอักษรย่อสีขาวบนพื้น primary-container + ขอบ outline-variant/50 แบบเดียวกับ avatar ใน AppShell
  * ถ้าโหลดรูปไม่สำเร็จ (เช่น ไฟล์ถูกลบ) กลับไปแสดงอักษรย่อ · รูปมาจาก API ของระบบนี้ที่ต้องใช้คุกกี้
  * จึงใช้ next/image แบบ unoptimized เหมือนรูปงานซ่อม · เป็นส่วนประกอบข้างชื่อ จึงซ่อนจาก screen reader
  */
@@ -42,7 +43,7 @@ export function Avatar({
         height={size}
         unoptimized
         onError={() => setFailed(src)}
-        className={`shrink-0 rounded-full bg-surface-container object-cover ${className}`}
+        className={`shrink-0 rounded-full border border-outline-variant/50 bg-surface-container object-cover ${className}`}
         style={box}
       />
     );
@@ -50,7 +51,7 @@ export function Avatar({
   return (
     <span
       aria-hidden="true"
-      className={`flex shrink-0 select-none items-center justify-center rounded-full bg-primary-container text-white ${textClassFor(size)} ${className}`}
+      className={`flex shrink-0 select-none items-center justify-center rounded-full border border-outline-variant/50 bg-primary-container text-white ${textClassFor(size)} ${className}`}
       style={box}
     >
       {initialsOf(name)}

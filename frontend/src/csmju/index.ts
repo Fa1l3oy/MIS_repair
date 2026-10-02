@@ -1,18 +1,16 @@
 /**
- * ของกลางของ CSMJU2030 (ช่วงเปลี่ยนผ่าน ui-design-system.md ข้อ 17.0) — ชื่อ export ตรงกับ template/package
- * เพื่อให้เปลี่ยน `from "@/csmju"` เป็น `from "@csmju2030/design-system"` ได้ทันทีเมื่อ PM เผยแพร่ package
+ * Shared CSMJU UI — the future `@csmju2030/design-system` package.
+ * Do not edit files in this folder inside a subsystem. Request changes
+ * through the design-system process (design-system.md §17.4).
  */
-export { CsmjuAppShell } from './CsmjuAppShell';
-export { SIDEBAR_COOKIE } from './shell';
-export type { ShellIcon, ShellNavItem, ShellUser } from './CsmjuAppShell';
-export { Avatar } from './Avatar';
-export { CsmjuLogo } from './CsmjuLogo';
-export { ConfirmDeleteModal } from './ConfirmDeleteModal';
-export { Modal } from './Modal';
-export { PageHeader } from './PageHeader';
-export { StatusBadge, TONE_DOT_CLASS } from './StatusBadge';
-export type { StatusTone } from './StatusBadge';
-export { Tabs } from './Tabs';
-export type { TabItem } from './Tabs';
-export * from './icons';
-export * from './ui';
+export { default as CsmjuAppShell } from "./CsmjuAppShell";
+export type { NavItem, NavIconName } from "./CsmjuAppShell";
+export { default as CsmjuLogo } from "./CsmjuLogo";
+export { default as Modal, ConfirmDeleteModal } from "./Modal";
+export { default as PageHeader } from "./PageHeader";
+export { default as StatusBadge, TONE_STYLES, TONES } from "./StatusBadge";
+export type { StatusTone } from "./StatusBadge";
+export { default as Tabs } from "./Tabs";
+export type { TabItem } from "./Tabs";
+export * from "./icons";
+export * from "./ui";

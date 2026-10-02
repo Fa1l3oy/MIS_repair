@@ -1,6 +1,16 @@
-/** Skeleton ที่มีรูปร่างใกล้เนื้อหาจริง (ข้อ 9.1) — ไม่ใช่ spinner กลางจอ */
+import { cardClass } from '@/csmju';
+
+/**
+ * Skeleton ที่มีรูปร่างใกล้เนื้อหาจริง (ข้อ 9.1) — ไม่ใช่ spinner กลางจอ
+ * class เดียวกับ loading.tsx ของ template (animate-pulse + surface-container) · หยุดกะพริบเมื่อผู้ใช้ลดการเคลื่อนไหว
+ */
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <span aria-hidden="true" className={`skeleton block rounded-lg ${className}`} />;
+  return (
+    <span
+      aria-hidden="true"
+      className={`block animate-pulse rounded-lg bg-surface-container motion-reduce:animate-none ${className}`}
+    />
+  );
 }
 
 export function PageSkeleton({ rows = 5, withCards = false }: { rows?: number; withCards?: boolean }) {
@@ -17,7 +27,7 @@ export function PageSkeleton({ rows = 5, withCards = false }: { rows?: number; w
           ))}
         </div>
       ) : null}
-      <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-sm">
+      <div className={cardClass}>
         <div className="border-b border-outline-variant/40 px-6 py-5">
           <Skeleton className="h-11 w-full max-w-md" />
         </div>

@@ -1,8 +1,13 @@
 'use client';
 
+import { cardClass } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import './globals.css';
 
-/** error ที่เกิดใน root layout เอง — ต้องมี html/body ของตัวเอง (ไม่อยู่ใน AppShell) */
+/**
+ * error ที่เกิดใน root layout เอง — ต้องมี html/body ของตัวเอง (ไม่อยู่ใน AppShell)
+ * หน้าตาเดียวกับ error.tsx ของ template (ข้อ 9.3 INTERNAL_ERROR) · ไม่แสดง error.message ดิบ
+ */
 export default function GlobalError({
   error,
   retry,
@@ -12,24 +17,19 @@ export default function GlobalError({
 }) {
   return (
     <html lang="th">
-      <body className="flex min-h-dvh items-center justify-center bg-background p-4 font-body">
-        <main
-          id="main"
-          role="alert"
-          className="w-full max-w-md space-y-4 rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-8 text-center shadow-sm"
-        >
-          <h1 className="font-display text-headline-md text-on-surface">ระบบขัดข้องชั่วคราว</h1>
+      <body className="flex min-h-dvh items-center justify-center bg-background p-4 text-on-surface">
+        <main id="main" role="alert" className={`${cardClass} w-full max-w-md px-6 py-12 text-center`}>
+          <h1 className="mb-2 font-display text-headline-md text-on-surface">ระบบขัดข้องชั่วคราว</h1>
           <p className="text-body-md text-on-surface-variant">
-            กรุณาลองอีกครั้ง หากยังพบปัญหา กรุณาแจ้งผู้ดูแลระบบพร้อมรหัสอ้างอิง
+            กรุณาลองอีกครั้ง หากยังพบปัญหา กรุณาแจ้งผู้ดูแลระบบ
+            {error.digest && (
+              <>
+                {' '}
+                พร้อมรหัส: <span className="tabular-nums">{error.digest}</span>
+              </>
+            )}
           </p>
-          {error.digest ? (
-            <p className="text-caption text-on-surface-variant">รหัสอ้างอิง: {error.digest}</p>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => retry()}
-            className="btn-gradient relative inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2.5 text-label-md text-on-primary shadow-md"
-          >
+          <button type="button" onClick={() => retry()} className={`${buttonClass.primary} mx-auto mt-6`}>
             ลองอีกครั้ง
           </button>
         </main>

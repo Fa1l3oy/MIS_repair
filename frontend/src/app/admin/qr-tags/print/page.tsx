@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowBackIcon, secondaryButtonClass } from '@/csmju';
+import { ArrowBackIcon } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { OriginQrCode } from '@/components/features/OriginQrCode';
 import { PrintButton } from '@/components/features/PrintButton';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -24,7 +25,7 @@ export default async function PrintQrTagsPage(props: PageProps<'/admin/qr-tags/p
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <Link href="/admin/qr-tags" className={secondaryButtonClass}>
+        <Link href="/admin/qr-tags" className={buttonClass.secondary}>
           <ArrowBackIcon className="h-4 w-4" />
           กลับไปที่สติกเกอร์ QR
         </Link>
@@ -42,7 +43,7 @@ export default async function PrintQrTagsPage(props: PageProps<'/admin/qr-tags/p
           {tags.map((tag) => (
             <article
               key={tag.id}
-              className="print-sheet flex break-inside-avoid items-center gap-4 rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-lowest p-4"
+              className="flex break-inside-avoid items-center gap-4 rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-lowest p-4"
             >
               <div className="shrink-0">
                 <OriginQrCode path={`/q/${tag.code}`} size={132} label={`QR แจ้งซ่อม ${tag.location}`} />

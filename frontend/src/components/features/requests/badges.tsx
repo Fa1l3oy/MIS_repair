@@ -1,15 +1,15 @@
 import type { ComponentType } from 'react';
+import { StatusBadge } from '@/csmju';
 import {
   CheckCircleIcon,
+  type IconProps,
   PriorityHighIcon,
   PriorityLowIcon,
   PriorityMediumIcon,
   PriorityUrgentIcon,
   ScheduleIcon,
-  StatusBadge,
   WarningIcon,
-  type IconProps,
-} from '@/csmju';
+} from '@/components/shared/icons';
 import { formatDuration } from '@/lib/format';
 import { PRIORITY_LABEL, SLA_LABEL, STATUS_LABEL, STATUS_TONE } from '@/lib/labels';
 import type { Priority, RepairRequestSummary, RequestStatus } from '@/lib/types';
@@ -22,7 +22,7 @@ import type { Priority, RepairRequestSummary, RequestStatus } from '@/lib/types'
  */
 
 export function RequestStatusBadge({ status }: { status: RequestStatus }) {
-  return <StatusBadge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</StatusBadge>;
+  return <StatusBadge tone={STATUS_TONE[status]} label={STATUS_LABEL[status]} />;
 }
 
 const PRIORITY_STYLE: Record<Priority, { className: string; icon: ComponentType<IconProps> }> = {

@@ -2,7 +2,8 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { DownloadIcon, secondaryButtonClass } from '@/csmju';
+import { DownloadIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
 import { api } from '@/lib/api';
@@ -119,7 +120,7 @@ export function CsvExportButton({
 
   return (
     <div className="flex flex-col items-start gap-1">
-      <LoadingButton onClick={run} loading={loading} className={secondaryButtonClass}>
+      <LoadingButton onClick={run} loading={loading} className={buttonClass.secondary}>
         <DownloadIcon className="h-4 w-4" />
         ส่งออก CSV
       </LoadingButton>

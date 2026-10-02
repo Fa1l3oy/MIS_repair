@@ -7,19 +7,15 @@ import {
   ConfirmDeleteModal,
   DeleteIcon,
   EditIcon,
-  iconButtonClass,
-  iconDangerButtonClass,
   inputClass,
   Modal,
-  primaryButtonClass,
-  secondaryButtonClass,
   StatusBadge,
-  tableClass,
-  tbodyRowClass,
   tdClass,
-  theadRowClass,
   thClass,
 } from '@/csmju';
+import { buttonClass, tableClass, tbodyRowClass, theadRowClass } from '@/components/shared/ui';
+import { DeleteMessage } from '@/components/shared/DeleteMessage';
+import { DialogFocus } from '@/components/shared/DialogFocus';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FormField } from '@/components/shared/FormField';
 import { LoadingButton } from '@/components/shared/LoadingButton';
@@ -53,7 +49,7 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
   const [error, setError] = useState<string | null>(null);
 
   const remove = async () => {
-    if (!deleting) return;
+    if (!deleting || busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -91,7 +87,7 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
         <p className="text-body-md text-on-surface-variant">
           ทั้งหมด {formatNumber(items.length)} รายการ · ที่ปิดการใช้งานจะไม่แสดงในฟอร์มแจ้งซ่อม
         </p>
-        <button type="button" onClick={() => setEditing('new')} className={primaryButtonClass}>
+        <button type="button" onClick={() => setEditing('new')} className={buttonClass.primary}>
           <AddIcon className="h-4 w-4" />
           เพิ่ม{noun}
         </button>
@@ -101,7 +97,7 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
           title={`ยังไม่มี${noun}`}
           description={`เพิ่ม${noun}ก่อน ผู้ใช้จึงจะเลือกได้ในฟอร์มแจ้งซ่อม`}
           action={
-            <button type="button" onClick={() => setEditing('new')} className={primaryButtonClass}>
+            <button type="button" onClick={() => setEditing('new')} className={buttonClass.primary}>
               <AddIcon className="h-4 w-4" />
               เพิ่ม{noun}
             </button>
@@ -156,9 +152,10 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
                       aria-label={`${item.isActive ? 'ปิดการใช้งาน' : 'เปิดใช้งาน'} ${item.name}`}
                       className="rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container"
                     >
-                      <StatusBadge tone={item.isActive ? 'success' : 'neutral'}>
-                        {item.isActive ? 'เปิดใช้งาน' : 'ปิดการใช้งาน'}
-                      </StatusBadge>
+                      <StatusBadge
+                        tone={item.isActive ? 'success' : 'neutral'}
+                        label={item.isActive ? 'เปิดใช้งาน' : 'ปิดการใช้งาน'}
+                      />
                     </button>
                   </td>
                   <td className={`${tdClass} whitespace-nowrap text-right`}>
@@ -166,7 +163,7 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
                       type="button"
                       onClick={() => setEditing(item)}
                       aria-label={`แก้ไข ${item.name}`}
-                      className={iconButtonClass}
+                      className={buttonClass.icon}
                     >
                       <EditIcon className="h-5 w-5" />
                     </button>
@@ -177,7 +174,7 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
                         setDeleting(item);
                       }}
                       aria-label={`ลบ ${item.name}`}
-                      className={iconDangerButtonClass}
+                      className={buttonClass.iconDanger}
                     >
                       <DeleteIcon className="h-5 w-5" />
                     </button>
@@ -199,18 +196,22 @@ export function CatalogManager({ kind, items }: { kind: Kind; items: CatalogItem
           router.refresh();
         }}
       />
-      <ConfirmDeleteModal
-        open={deleting !== null}
-        title={`ลบ${noun}`}
-        itemName={deleting?.name ?? ''}
-        consequence="รายการนี้จะถูกลบถาวร"
-        blockedReason={deleting ? usage(deleting) : null}
-        confirmLabel={`ลบ${noun}`}
-        loading={busy}
-        error={error}
-        onConfirm={() => void remove()}
-        onClose={() => !busy && setDeleting(null)}
-      />
+      {deleting !== null ? (
+        <ConfirmDeleteModal
+          title={`ลบ${noun}`}
+          message={
+            <DeleteMessage
+              itemName={deleting.name}
+              consequence="รายการนี้จะถูกลบถาวร"
+              busy={busy}
+              error={error}
+            />
+          }
+          blockedReason={usage(deleting) ?? undefined}
+          onConfirm={() => void remove()}
+          onClose={() => !busy && setDeleting(null)}
+        />
+      ) : null}
     </>
   );
 }
@@ -226,16 +227,19 @@ function CatalogDialog({
   onClose: () => void;
   onSaved: (name: string, created: boolean) => void;
 }) {
+  if (item === null) return null;
   const creating = item === 'new';
-  const current = item && item !== 'new' ? item : null;
-  const key = creating ? 'new' : (current?.id ?? 'none');
+  const current = creating ? null : item;
   return (
-    <Modal
-      open={item !== null}
-      title={creating ? `เพิ่ม${NOUN[kind]}` : `แก้ไข${NOUN[kind]}`}
-      onClose={onClose}
-    >
-      <CatalogForm key={key} kind={kind} current={current} onCancel={onClose} onSaved={onSaved} />
+    <Modal title={creating ? `เพิ่ม${NOUN[kind]}` : `แก้ไข${NOUN[kind]}`} onClose={onClose}>
+      <DialogFocus />
+      <CatalogForm
+        key={creating ? 'new' : item.id}
+        kind={kind}
+        current={current}
+        onCancel={onClose}
+        onSaved={onSaved}
+      />
     </Modal>
   );
 }
@@ -328,10 +332,10 @@ function CatalogForm({
         </FormField>
       ) : null}
       <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onCancel} className={secondaryButtonClass} disabled={busy}>
+        <button type="button" onClick={onCancel} className={buttonClass.secondary} disabled={busy}>
           ยกเลิก
         </button>
-        <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+        <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
           บันทึก
         </LoadingButton>
       </div>

@@ -1,49 +1,55 @@
-import Link from 'next/link';
+"use client";
 
-/** tone 'error' = ตัวนับเป็นสีแดงเมื่อมากกว่า 0 (เช่น งานเกินกำหนด) */
-export type TabItem = { key: string; label: string; href: string; count?: number; tone?: 'error' };
+export type TabItem<T extends string> = {
+  id: T;
+  label: string;
+  count?: number;
+};
 
-/**
- * แถบ tab แบบลิงก์ (สถานะอยู่ใน URL — ย้อนกลับ/แชร์ลิงก์ได้) ตามสเปค Tabs ข้อ 7.2.1
- * ใช้ nav + aria-current แทน role="tablist" เพราะแต่ละ tab เป็นการนำทางไปหน้าใหม่
- */
-export function Tabs({ items, active, label }: { items: TabItem[]; active: string; label: string }) {
+export default function Tabs<T extends string>({
+  tabs,
+  active,
+  onChange,
+}: {
+  tabs: TabItem<T>[];
+  active: T;
+  onChange: (id: T) => void;
+}) {
   return (
-    <nav aria-label={label} className="-mx-1 overflow-x-auto border-b border-outline-variant/40">
-      <ul className="flex min-w-max gap-1 px-1">
-        {items.map((item) => {
-          const selected = item.key === active;
-          return (
-            <li key={item.key}>
-              <Link
-                href={item.href}
-                scroll={false}
-                aria-current={selected ? 'page' : undefined}
-                className={`inline-flex min-h-11 items-center gap-2 border-b-2 px-4 py-3 text-label-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container ${
+    <div
+      role="tablist"
+      className="fade-slide-up stagger-1 flex gap-1 overflow-x-auto border-b border-outline-variant/40"
+    >
+      {tabs.map((tab) => {
+        const selected = tab.id === active;
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            onClick={() => onChange(tab.id)}
+            className={`-mb-px flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-label-md transition-colors ${
+              selected
+                ? "border-primary-container text-primary-container"
+                : "border-transparent text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            {tab.label}
+            {tab.count !== undefined && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-label-sm ${
                   selected
-                    ? 'border-primary-container text-primary-container'
-                    : 'border-transparent text-on-surface-variant hover:text-on-surface'
+                    ? "bg-primary-container/10 text-primary-container"
+                    : "bg-surface-variant text-on-surface-variant"
                 }`}
               >
-                {item.label}
-                {item.count !== undefined ? (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-label-sm tabular-nums ${
-                      item.tone === 'error' && item.count > 0
-                        ? 'bg-error-container text-on-error-container'
-                        : selected
-                          ? 'bg-primary-container/10 text-primary-container'
-                          : 'bg-surface-variant'
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                ) : null}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+                {tab.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }

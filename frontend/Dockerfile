@@ -23,9 +23,10 @@ RUN pnpm --filter frontend build
 FROM node:22-alpine
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3102 HOSTNAME=0.0.0.0
 WORKDIR /app
-# output: 'standalone' ของ workspace — server.js อยู่ใต้ frontend/ ส่วนไฟล์ static ต้องคัดลอกเอง
+# output: 'standalone' ของ workspace — server.js อยู่ใต้ frontend/ ส่วนไฟล์ static และ public/ (โลโก้) ต้องคัดลอกเอง
 COPY --from=build --chown=node:node /repo/frontend/.next/standalone ./
 COPY --from=build --chown=node:node /repo/frontend/.next/static ./frontend/.next/static
+COPY --from=build --chown=node:node /repo/frontend/public ./frontend/public
 USER node
 EXPOSE 3102
 CMD ["node", "frontend/server.js"]

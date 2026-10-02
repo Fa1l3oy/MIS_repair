@@ -2,14 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
-import {
-  Avatar,
-  CameraIcon,
-  ConfirmDeleteModal,
-  DeleteIcon,
-  primaryButtonClass,
-  secondaryButtonClass,
-} from '@/csmju';
+import { ConfirmDeleteModal, DeleteIcon } from '@/csmju';
+import { Avatar } from '@/components/shared/Avatar';
+import { CameraIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
+import { DeleteMessage } from '@/components/shared/DeleteMessage';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
 import { api, ApiRequestError } from '@/lib/api';
@@ -20,7 +17,8 @@ type Busy = 'prepare' | 'upload' | 'delete' | null;
 
 /**
  * เปลี่ยนรูปโปรไฟล์ — เลือกรูป → ครอปเป็นสี่เหลี่ยมและย่อในเครื่อง → ดูตัวอย่าง → บันทึก
- * รูปเก็บในระบบแจ้งซ่อมเอง (Core Hub v1.0 ยังไม่มีรูปผู้ใช้) และแสดงบน top bar กับใบแจ้งซ่อม
+ * รูปเก็บในระบบแจ้งซ่อมเอง (Core Hub v1.0 ยังไม่มีรูปผู้ใช้) และแสดงในใบแจ้งซ่อมกับรายชื่อผู้ใช้
+ * (avatar บน top bar เป็นของ AppShell กลางซึ่งยังแสดงรูปไม่ได้ — ขอเพิ่มแล้ว)
  */
 export function AvatarEditor({ me }: { me: Me }) {
   const router = useRouter();
@@ -83,6 +81,7 @@ export function AvatarEditor({ me }: { me: Me }) {
   };
 
   const remove = async () => {
+    if (busy === 'delete') return;
     setBusy('delete');
     setDeleteError(null);
     try {
@@ -134,21 +133,21 @@ export function AvatarEditor({ me }: { me: Me }) {
         <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
           {draft ? (
             <>
-              <LoadingButton onClick={save} loading={busy === 'upload'} className={primaryButtonClass}>
+              <LoadingButton onClick={save} loading={busy === 'upload'} className={buttonClass.primary}>
                 บันทึกรูปนี้
               </LoadingButton>
               <button
                 type="button"
                 onClick={() => setDraft(null)}
                 disabled={busy === 'upload'}
-                className={secondaryButtonClass}
+                className={buttonClass.secondary}
               >
                 ยกเลิก
               </button>
             </>
           ) : (
             <>
-              <LoadingButton onClick={choose} loading={busy === 'prepare'} className={secondaryButtonClass}>
+              <LoadingButton onClick={choose} loading={busy === 'prepare'} className={buttonClass.secondary}>
                 <CameraIcon className="h-4 w-4" />
                 {me.avatarUrl ? 'เปลี่ยนรูป' : 'เพิ่มรูปโปรไฟล์'}
               </LoadingButton>
@@ -159,7 +158,7 @@ export function AvatarEditor({ me }: { me: Me }) {
                     setDeleteError(null);
                     setConfirming(true);
                   }}
-                  className={`${secondaryButtonClass} text-error hover:bg-error-container/60`}
+                  className={`${buttonClass.secondary} text-error hover:bg-error-container/60`}
                 >
                   <DeleteIcon className="h-4 w-4" />
                   ลบรูป
@@ -181,17 +180,21 @@ export function AvatarEditor({ me }: { me: Me }) {
         className="sr-only"
         onChange={onFile}
       />
-      <ConfirmDeleteModal
-        open={confirming}
-        title="ลบรูปโปรไฟล์"
-        itemName="รูปโปรไฟล์ของคุณ"
-        consequence="ระบบจะกลับไปแสดงอักษรย่อของชื่อแทนรูป"
-        confirmLabel="ลบรูป"
-        loading={busy === 'delete'}
-        error={deleteError}
-        onConfirm={() => void remove()}
-        onClose={() => busy !== 'delete' && setConfirming(false)}
-      />
+      {confirming ? (
+        <ConfirmDeleteModal
+          title="ลบรูปโปรไฟล์"
+          message={
+            <DeleteMessage
+              itemName="รูปโปรไฟล์ของคุณ"
+              consequence="ระบบจะกลับไปแสดงอักษรย่อของชื่อแทนรูป"
+              busy={busy === 'delete'}
+              error={deleteError}
+            />
+          }
+          onConfirm={() => void remove()}
+          onClose={() => busy !== 'delete' && setConfirming(false)}
+        />
+      ) : null}
     </div>
   );
 }

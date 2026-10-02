@@ -10,7 +10,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { CheckCircleIcon, CloseIcon, ErrorIcon } from '@/csmju';
+import { CloseIcon } from '@/csmju';
+import { CheckCircleIcon, ErrorIcon } from '@/components/shared/icons';
 
 type Toast = { id: number; tone: 'success' | 'error'; message: string };
 type ToastApi = { success: (message: string) => void; error: (message: string) => void };

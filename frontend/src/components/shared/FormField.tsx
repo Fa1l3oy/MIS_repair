@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { ErrorIcon, fieldErrorClass, hintClass, labelClass } from '@/csmju';
+import { ErrorIcon } from '@/components/shared/icons';
+import { fieldErrorClass, hintClass, labelClass } from '@/components/shared/ui';
 
 /**
  * label ที่มองเห็นได้ + เครื่องหมาย * + คำอธิบาย + error ใต้ช่อง (ข้อ 8.1)

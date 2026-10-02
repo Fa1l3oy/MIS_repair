@@ -1,14 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import {
-  AddIcon,
-  AssignmentIcon,
-  cardClass,
-  PageHeader,
-  primaryButtonClass,
-  SearchIcon,
-  secondaryButtonClass,
-} from '@/csmju';
+import { AddIcon, cardClass, PageHeader, SearchIcon } from '@/csmju';
+import { AssignmentIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { CsvExportButton } from '@/components/features/requests/CsvExportButton';
 import { RequestFilters } from '@/components/features/requests/RequestFilters';
 import { RequestList } from '@/components/features/requests/RequestList';
@@ -39,21 +33,18 @@ export default async function MyRequestsPage(props: PageProps<'/requests'>) {
       <PageHeader
         title="ใบแจ้งซ่อมของฉัน"
         description="ติดตามสถานะงานซ่อมที่คุณแจ้งไว้ แสดงความคิดเห็นถึงช่าง และให้คะแนนเมื่อซ่อมเสร็จ"
-        actions={
-          <Link href="/requests/new" className={primaryButtonClass}>
-            <AddIcon className="h-4 w-4" />
-            แจ้งซ่อม
-          </Link>
-        }
       />
+      {/* แถบเครื่องมือของการ์ด = ค้นหา/ตัวกรอง + ปุ่มหลักของหน้าชิดขวา (ข้อ 5.2, 8.2) */}
       <section className={cardClass} aria-label="รายการใบแจ้งซ่อม">
         <div className="flex flex-col gap-4 border-b border-outline-variant/40 px-4 py-5 md:px-6">
           <RequestFilters buildings={catalog.buildingOptions} categories={catalog.categoryOptions} />
-          {result.data.length > 0 ? (
-            <div className="flex justify-end">
-              <CsvExportButton scope="mine" filename="ใบแจ้งซ่อมของฉัน" />
-            </div>
-          ) : null}
+          <div className="flex flex-wrap justify-end gap-3">
+            {result.data.length > 0 ? <CsvExportButton scope="mine" filename="ใบแจ้งซ่อมของฉัน" /> : null}
+            <Link href="/requests/new" className={buttonClass.primary}>
+              <AddIcon className="h-4 w-4" />
+              แจ้งซ่อม
+            </Link>
+          </div>
         </div>
         {result.data.length === 0 ? (
           filtered ? (
@@ -62,7 +53,7 @@ export default async function MyRequestsPage(props: PageProps<'/requests'>) {
               title="ไม่พบใบแจ้งซ่อมที่ตรงกับตัวกรอง"
               description="ลองเปลี่ยนคำค้นหรือล้างตัวกรองเพื่อดูรายการทั้งหมด"
               action={
-                <Link href="/requests" className={secondaryButtonClass}>
+                <Link href="/requests" className={buttonClass.secondary}>
                   ล้างตัวกรอง
                 </Link>
               }
@@ -73,7 +64,7 @@ export default async function MyRequestsPage(props: PageProps<'/requests'>) {
               title="ยังไม่มีใบแจ้งซ่อม"
               description="เมื่อพบอุปกรณ์หรือห้องที่ชำรุด แจ้งซ่อมได้ทันที ระบบจะแจ้งเตือนเมื่อช่างรับเรื่องและซ่อมเสร็จ"
               action={
-                <Link href="/requests/new" className={primaryButtonClass}>
+                <Link href="/requests/new" className={buttonClass.primary}>
                   <AddIcon className="h-4 w-4" />
                   แจ้งซ่อม
                 </Link>

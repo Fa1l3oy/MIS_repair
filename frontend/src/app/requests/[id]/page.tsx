@@ -2,19 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache, type ReactNode } from 'react';
-import {
-  Avatar,
-  cardClass,
-  cardHeaderClass,
-  cardTitleClass,
-  MailIcon,
-  PageHeader,
-  PhoneIcon,
-  PrintIcon,
-  QrCodeIcon,
-  secondaryButtonClass,
-  StarIcon,
-} from '@/csmju';
+import { cardClass, MailIcon, PageHeader } from '@/csmju';
+import { Avatar } from '@/components/shared/Avatar';
+import { PhoneIcon, PrintIcon, QrCodeIcon, StarIcon } from '@/components/shared/icons';
+import { buttonClass, cardHeaderClass, cardTitleClass } from '@/components/shared/ui';
 import { CommentBox } from '@/components/features/requests/CommentBox';
 import { ImageGallery } from '@/components/features/requests/ImageGallery';
 import { PriorityTag, RequestStatusBadge, SlaIndicator } from '@/components/features/requests/badges';
@@ -67,26 +58,31 @@ export default async function RequestDetailPage(props: PageProps<'/requests/[id]
 
   return (
     <>
-      <PageHeader
-        eyebrow={
-          <>
-            <span className="text-label-md text-primary-container tabular-nums">{request.code}</span>
-            <RequestStatusBadge status={request.status} />
-            <PriorityTag priority={request.priority} />
-            <SlaIndicator sla={request.sla} />
-          </>
-        }
-        title={request.equipment}
-        description={placeText(request.building.name, request.floor, request.location)}
-        actions={
-          <Link href={`/requests/${request.id}/print`} className={secondaryButtonClass}>
-            <PrintIcon className="h-4 w-4" />
-            พิมพ์ใบงาน
-          </Link>
-        }
-      />
+      <div className="space-y-4">
+        <PageHeader
+          title={request.equipment}
+          description={placeText(request.building.name, request.floor, request.location)}
+        />
+        {/* เลขที่ + สถานะ 3 เรื่องของใบแจ้ง (สถานะงาน · ความเร่งด่วน · กำหนดเสร็จ) ใต้ชื่อหน้า */}
+        <div className="fade-slide-up flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span className="text-label-md text-primary-container tabular-nums">{request.code}</span>
+          <RequestStatusBadge status={request.status} />
+          <PriorityTag priority={request.priority} />
+          <SlaIndicator sla={request.sla} />
+        </div>
+      </div>
 
-      <RequestActions request={request} technicians={technicianOptions} categories={categoryOptions} />
+      {/* แถบการดำเนินการของใบแจ้ง — ปุ่มตามสิทธิ์ (ข้อ 10) และพิมพ์ใบงานชิดขวา */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between print:hidden">
+        <RequestActions request={request} technicians={technicianOptions} categories={categoryOptions} />
+        <Link
+          href={`/requests/${request.id}/print`}
+          className={`${buttonClass.secondary} shrink-0 self-start whitespace-nowrap`}
+        >
+          <PrintIcon className="h-4 w-4" />
+          พิมพ์ใบงาน
+        </Link>
+      </div>
 
       <div className="grid gap-8 xl:grid-cols-3">
         <div className="space-y-8 xl:col-span-2">

@@ -1,0 +1,3 @@
+# ของกลางจาก template csmju-subsystem-web — ห้ามแก้ในระบบย่อย จึงไม่จัดรูปแบบตามกติกาของ repo นี้ (ui-design-system.md ข้อ 17.0)
+src/csmju/
+src/app/globals.css

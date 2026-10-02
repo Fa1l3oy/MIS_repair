@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Avatar, StatusBadge, tableClass, tbodyRowClass, tdClass, theadRowClass, thClass } from '@/csmju';
+import { StatusBadge, tdClass, thClass } from '@/csmju';
+import { Avatar } from '@/components/shared/Avatar';
+import { tableClass, tbodyRowClass, theadRowClass } from '@/components/shared/ui';
 import { useToast } from '@/components/shared/Toast';
 import { api } from '@/lib/api';
 import { formatPhone, formatRelative } from '@/lib/format';
@@ -106,11 +108,12 @@ export function UsersTable({ items, selfId }: { items: Profile[]; selfId: string
                   </td>
                   <td className={`${tdClass} whitespace-nowrap`}>
                     {profile.subsystemRole ? (
-                      <StatusBadge tone={profile.subsystemRole === 'USER' ? 'neutral' : 'info'}>
-                        {SUBSYSTEM_ROLE_LABEL[profile.subsystemRole]}
-                      </StatusBadge>
+                      <StatusBadge
+                        tone={profile.subsystemRole === 'USER' ? 'neutral' : 'info'}
+                        label={SUBSYSTEM_ROLE_LABEL[profile.subsystemRole]}
+                      />
                     ) : (
-                      <StatusBadge tone="neutral">เข้าระบบนี้ไม่ได้</StatusBadge>
+                      <StatusBadge tone="neutral" label="เข้าระบบนี้ไม่ได้" />
                     )}
                   </td>
                   <td className={`${tdClass} text-on-surface-variant`}>

@@ -1,4 +1,5 @@
-import { LockIcon, secondaryButtonClass, tonalButtonClass } from '@/csmju';
+import { LockIcon } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { coreHubHomeUrl } from '@/lib/config';
 
 /** 403 FORBIDDEN (ข้อ 9.3): การ์ด "ไม่มีสิทธิ์" + ปุ่มกลับหน้าหลัก + ลิงก์ขอสิทธิ์เข้าใช้งาน */
@@ -15,14 +16,14 @@ export function ForbiddenState({
         <LockIcon className="h-6 w-6" />
       </span>
       <div className="max-w-md space-y-1">
-        <h2 className="text-label-md text-on-surface">ไม่มีสิทธิ์เข้าถึง</h2>
+        <h1 className="font-display text-headline-md text-on-surface">ไม่มีสิทธิ์เข้าถึง</h1>
         <p className="text-body-md text-on-surface-variant">{message}</p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        <a href={backHref} className={secondaryButtonClass}>
+        <a href={backHref} className={buttonClass.secondary}>
           กลับหน้าหลัก
         </a>
-        <a href={coreHubHomeUrl()} className={tonalButtonClass}>
+        <a href={coreHubHomeUrl()} className={buttonClass.tonal}>
           ขอสิทธิ์เข้าใช้งาน
         </a>
       </div>

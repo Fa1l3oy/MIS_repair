@@ -2,19 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent, type ReactNode } from 'react';
-import {
-  BlockIcon,
-  CheckCircleIcon,
-  EditIcon,
-  inputClass,
-  Modal,
-  PauseIcon,
-  PersonIcon,
-  PlayIcon,
-  primaryButtonClass,
-  secondaryButtonClass,
-  dangerButtonClass,
-} from '@/csmju';
+import { EditIcon, inputClass, Modal, PersonIcon } from '@/csmju';
+import { BlockIcon, CheckCircleIcon, PauseIcon, PlayIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
+import { DialogFocus } from '@/components/shared/DialogFocus';
 import { FormField } from '@/components/shared/FormField';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
@@ -87,7 +78,7 @@ export function RequestActions({
   const primary = () => {
     const use = !primaryUsed;
     primaryUsed = true;
-    return use ? primaryButtonClass : secondaryButtonClass;
+    return use ? buttonClass.primary : buttonClass.secondary;
   };
 
   if (allowed.has('accept')) {
@@ -127,7 +118,7 @@ export function RequestActions({
   }
   if (allowed.has('hold')) {
     buttons.push(
-      <button key="hold" type="button" className={secondaryButtonClass} onClick={() => setDialog('hold')}>
+      <button key="hold" type="button" className={buttonClass.secondary} onClick={() => setDialog('hold')}>
         <PauseIcon className="h-4 w-4" />
         พักงาน/รออะไหล่
       </button>,
@@ -135,7 +126,12 @@ export function RequestActions({
   }
   if (allowed.has('assign')) {
     buttons.push(
-      <button key="assign" type="button" className={secondaryButtonClass} onClick={() => setDialog('assign')}>
+      <button
+        key="assign"
+        type="button"
+        className={buttonClass.secondary}
+        onClick={() => setDialog('assign')}
+      >
         <PersonIcon className="h-4 w-4" />
         {request.assignee ? 'โอนงานให้ช่างคนอื่น' : 'มอบหมายช่าง'}
       </button>,
@@ -143,7 +139,7 @@ export function RequestActions({
   }
   if (allowed.has('edit')) {
     buttons.push(
-      <button key="edit" type="button" className={secondaryButtonClass} onClick={() => setDialog('edit')}>
+      <button key="edit" type="button" className={buttonClass.secondary} onClick={() => setDialog('edit')}>
         <EditIcon className="h-4 w-4" />
         แก้ไขความเร่งด่วน/หมวดหมู่
       </button>,
@@ -154,7 +150,7 @@ export function RequestActions({
       <button
         key="reject"
         type="button"
-        className={`${secondaryButtonClass} text-error`}
+        className={`${buttonClass.secondary} text-error`}
         onClick={() => setDialog('reject')}
       >
         <BlockIcon className="h-4 w-4" />
@@ -167,7 +163,7 @@ export function RequestActions({
       <button
         key="cancel"
         type="button"
-        className={`${secondaryButtonClass} text-error`}
+        className={`${buttonClass.secondary} text-error`}
         onClick={() => setDialog('cancel')}
       >
         <BlockIcon className="h-4 w-4" />
@@ -321,8 +317,10 @@ function NoteDialog({
     }
     if (await onSubmit(note.trim())) setNote('');
   };
+  if (!open) return null;
   return (
-    <Modal open={open} title={title} onClose={onClose} dismissible={!busy}>
+    <Modal title={title} onClose={onClose}>
+      <DialogFocus />
       <form onSubmit={submit} noValidate className="space-y-4">
         <DialogError message={error} />
         <FormField
@@ -349,13 +347,13 @@ function NoteDialog({
           />
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className={secondaryButtonClass} disabled={busy}>
+          <button type="button" onClick={onClose} className={buttonClass.secondary} disabled={busy}>
             {cancelLabel}
           </button>
           <LoadingButton
             type="submit"
             loading={busy}
-            className={danger ? dangerButtonClass : primaryButtonClass}
+            className={danger ? buttonClass.danger : buttonClass.primary}
           >
             {confirmLabel}
           </LoadingButton>
@@ -387,8 +385,10 @@ function CompleteDialog({
       setPhotos([]);
     }
   };
+  if (!open) return null;
   return (
-    <Modal open={open} title="ปิดงาน (ซ่อมเสร็จ)" onClose={onClose} dismissible={!busy} size="lg">
+    <Modal title="ปิดงาน (ซ่อมเสร็จ)" onClose={onClose}>
+      <DialogFocus />
       <form onSubmit={submit} noValidate className="space-y-4">
         <DialogError message={error} />
         <FormField
@@ -414,10 +414,10 @@ function CompleteDialog({
           hint="ไม่บังคับ · สูงสุด 5 รูป เป็นหลักฐานการซ่อม"
         />
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className={secondaryButtonClass} disabled={busy}>
+          <button type="button" onClick={onClose} className={buttonClass.secondary} disabled={busy}>
             ยกเลิก
           </button>
-          <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+          <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
             ปิดงาน
           </LoadingButton>
         </div>
@@ -455,8 +455,10 @@ function AssignDialog({
       setNote('');
     }
   };
+  if (!open) return null;
   return (
-    <Modal open={open} title="มอบหมายช่าง" onClose={onClose} dismissible={!busy}>
+    <Modal title="มอบหมายช่าง" onClose={onClose}>
+      <DialogFocus />
       <form onSubmit={submit} noValidate className="space-y-4">
         <DialogError message={error} />
         {technicians.length === 0 ? (
@@ -496,13 +498,13 @@ function AssignDialog({
           />
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className={secondaryButtonClass} disabled={busy}>
+          <button type="button" onClick={onClose} className={buttonClass.secondary} disabled={busy}>
             ยกเลิก
           </button>
           <LoadingButton
             type="submit"
             loading={busy}
-            className={primaryButtonClass}
+            className={buttonClass.primary}
             disabled={technicians.length === 0}
           >
             มอบหมายงาน
@@ -536,8 +538,10 @@ function EditDialog({
     event.preventDefault();
     await onSubmit(priority, categoryId);
   };
+  if (!open) return null;
   return (
-    <Modal open={open} title="แก้ไขความเร่งด่วน/หมวดหมู่" onClose={onClose} dismissible={!busy}>
+    <Modal title="แก้ไขความเร่งด่วน/หมวดหมู่" onClose={onClose}>
+      <DialogFocus />
       <form onSubmit={submit} noValidate className="space-y-4">
         <DialogError message={error} />
         <FormField
@@ -575,10 +579,10 @@ function EditDialog({
           </select>
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className={secondaryButtonClass} disabled={busy}>
+          <button type="button" onClick={onClose} className={buttonClass.secondary} disabled={busy}>
             ยกเลิก
           </button>
-          <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+          <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
             บันทึกการเปลี่ยนแปลง
           </LoadingButton>
         </div>

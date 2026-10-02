@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { cardClass, cardHeaderClass, cardTitleClass, InfoIcon, PageHeader, StatusBadge } from '@/csmju';
+import { cardClass, PageHeader, StatusBadge } from '@/csmju';
+import { InfoIcon } from '@/components/shared/icons';
+import { cardHeaderClass, cardTitleClass } from '@/components/shared/ui';
 import { AvatarEditor } from '@/components/features/AvatarEditor';
 import { ProfileForm } from '@/components/features/ProfileForm';
 import { ApiFailure } from '@/components/shared/ApiFailure';
@@ -60,10 +62,10 @@ export default async function ProfilePage() {
             <dl className="space-y-4">
               <Row label="อีเมล">{user.email}</Row>
               <Row label="บทบาทใน CSMJU">
-                <StatusBadge tone="neutral">{CORE_ROLE_LABEL[user.coreRole] ?? user.coreRole}</StatusBadge>
+                <StatusBadge tone="neutral" label={CORE_ROLE_LABEL[user.coreRole] ?? user.coreRole} />
               </Row>
               <Row label="บทบาทในระบบแจ้งซ่อม">
-                <StatusBadge tone="info">{SUBSYSTEM_ROLE_LABEL[user.subsystemRole]}</StatusBadge>
+                <StatusBadge tone="info" label={SUBSYSTEM_ROLE_LABEL[user.subsystemRole]} />
               </Row>
               <Row label="เข้าสู่ระบบถึง">{formatDateTime(user.sessionExpiresAt)}</Row>
             </dl>

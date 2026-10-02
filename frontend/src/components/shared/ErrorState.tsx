@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
-import { ErrorIcon, primaryButtonClass } from '@/csmju';
+import { ErrorIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 
 /**
  * ErrorState เต็มพื้นที่ + ปุ่ม "ลองอีกครั้ง" + รหัสอ้างอิง (ข้อ 9.3 — INTERNAL_ERROR / เชื่อมต่อไม่ได้)
@@ -32,7 +33,7 @@ export function ErrorState({
         <ErrorIcon className="h-6 w-6" />
       </span>
       <div className="max-w-md space-y-1">
-        <h2 className="text-label-md text-on-surface">{title}</h2>
+        <h1 className="font-display text-headline-md text-on-surface">{title}</h1>
         <p className="text-body-md text-on-surface-variant">{message}</p>
         {reference ? (
           <p className="text-caption text-on-surface-variant">
@@ -44,7 +45,7 @@ export function ErrorState({
         type="button"
         onClick={retry}
         aria-busy={pending}
-        className={`${primaryButtonClass} ${pending ? 'btn-loading' : ''}`}
+        className={`${buttonClass.primary} ${pending ? 'btn-loading' : ''}`}
       >
         <span className="btn-text">ลองอีกครั้ง</span>
         <span className="dots" aria-hidden="true">

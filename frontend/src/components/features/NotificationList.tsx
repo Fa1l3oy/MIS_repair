@@ -2,14 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { CheckIcon, secondaryButtonClass } from '@/csmju';
+import { CheckIcon } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
 import { api } from '@/lib/api';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import type { Notification } from '@/lib/types';
-
-const changed = () => window.dispatchEvent(new CustomEvent('csmju:notifications-changed'));
 
 /** รายการแจ้งเตือน — เปิดแล้วทำเครื่องหมายว่าอ่านให้เอง · ลิงก์ภายในระบบเท่านั้น (ขึ้นต้น "/") */
 export function NotificationList({ items }: { items: Notification[] }) {
@@ -21,7 +20,6 @@ export function NotificationList({ items }: { items: Notification[] }) {
     try {
       if (!item.isRead)
         await api(`/api/v1/notifications/${item.id}`, { method: 'PATCH', json: { isRead: true } });
-      changed();
     } catch {
       // เปิดลิงก์ต่อได้แม้ทำเครื่องหมายไม่สำเร็จ
     }
@@ -69,7 +67,7 @@ export function NotificationList({ items }: { items: Notification[] }) {
   );
 }
 
-export function MarkAllReadButton({ disabled }: { disabled: boolean }) {
+export function MarkAllReadButton() {
   const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
@@ -83,7 +81,6 @@ export function MarkAllReadButton({ disabled }: { disabled: boolean }) {
         json: { isRead: true },
       });
       toast.success(`ทำเครื่องหมายว่าอ่านแล้ว ${data.updated} รายการ`);
-      changed();
       router.refresh();
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : 'ดำเนินการไม่สำเร็จ');
@@ -93,19 +90,10 @@ export function MarkAllReadButton({ disabled }: { disabled: boolean }) {
   };
   return (
     <div className="flex flex-col items-end gap-1">
-      <LoadingButton
-        onClick={run}
-        loading={busy}
-        disabled={disabled}
-        className={secondaryButtonClass}
-        title={disabled ? 'ไม่มีการแจ้งเตือนที่ยังไม่อ่าน' : undefined}
-      >
+      <LoadingButton onClick={run} loading={busy} className={buttonClass.secondary}>
         <CheckIcon className="h-4 w-4" />
         อ่านแล้วทั้งหมด
       </LoadingButton>
-      {disabled ? (
-        <span className="text-label-sm font-normal text-on-surface-variant">ไม่มีรายการที่ยังไม่อ่าน</span>
-      ) : null}
       {error ? (
         <span role="alert" className="text-label-sm text-error">
           {error}

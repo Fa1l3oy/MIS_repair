@@ -8,20 +8,15 @@ import {
   ConfirmDeleteModal,
   DeleteIcon,
   EditIcon,
-  iconButtonClass,
-  iconDangerButtonClass,
   inputClass,
   Modal,
-  primaryButtonClass,
-  PrintIcon,
-  QrCodeIcon,
-  secondaryButtonClass,
-  tableClass,
-  tbodyRowClass,
   tdClass,
-  theadRowClass,
   thClass,
 } from '@/csmju';
+import { PrintIcon, QrCodeIcon } from '@/components/shared/icons';
+import { buttonClass, tableClass, tbodyRowClass, theadRowClass } from '@/components/shared/ui';
+import { DeleteMessage } from '@/components/shared/DeleteMessage';
+import { DialogFocus } from '@/components/shared/DialogFocus';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { FormField } from '@/components/shared/FormField';
 import { LoadingButton } from '@/components/shared/LoadingButton';
@@ -61,7 +56,7 @@ export function QrTagManager({
   const allSelected = items.length > 0 && items.every((item) => selected.has(item.id));
 
   const remove = async () => {
-    if (!deleting) return;
+    if (!deleting || busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -83,7 +78,7 @@ export function QrTagManager({
       <div className="flex flex-col gap-3 border-b border-outline-variant/40 px-4 py-5 md:flex-row md:items-center md:justify-between md:px-6">
         <div className="flex flex-wrap items-center gap-3">
           {selected.size > 0 ? (
-            <Link href={printHref} className={secondaryButtonClass}>
+            <Link href={printHref} className={buttonClass.secondary}>
               <PrintIcon className="h-4 w-4" />
               พิมพ์ที่เลือก ({selected.size})
             </Link>
@@ -93,7 +88,7 @@ export function QrTagManager({
             </span>
           )}
         </div>
-        <button type="button" onClick={() => setEditing('new')} className={primaryButtonClass}>
+        <button type="button" onClick={() => setEditing('new')} className={buttonClass.primary}>
           <AddIcon className="h-4 w-4" />
           สร้างสติกเกอร์ QR
         </button>
@@ -104,7 +99,7 @@ export function QrTagManager({
           title="ยังไม่มีสติกเกอร์ QR"
           description="สร้างสติกเกอร์ให้ห้องหรืออุปกรณ์ที่แจ้งซ่อมบ่อย ผู้ใช้สแกนแล้วฟอร์มจะกรอกสถานที่ให้เอง"
           action={
-            <button type="button" onClick={() => setEditing('new')} className={primaryButtonClass}>
+            <button type="button" onClick={() => setEditing('new')} className={buttonClass.primary}>
               <AddIcon className="h-4 w-4" />
               สร้างสติกเกอร์ QR
             </button>
@@ -178,7 +173,7 @@ export function QrTagManager({
                     <Link
                       href={`/admin/qr-tags/print?ids=${tag.id}`}
                       aria-label={`พิมพ์สติกเกอร์ ${tag.code}`}
-                      className={iconButtonClass}
+                      className={buttonClass.icon}
                     >
                       <PrintIcon className="h-5 w-5" />
                     </Link>
@@ -186,7 +181,7 @@ export function QrTagManager({
                       type="button"
                       onClick={() => setEditing(tag)}
                       aria-label={`แก้ไขสติกเกอร์ ${tag.code}`}
-                      className={iconButtonClass}
+                      className={buttonClass.icon}
                     >
                       <EditIcon className="h-5 w-5" />
                     </button>
@@ -197,7 +192,7 @@ export function QrTagManager({
                         setDeleting(tag);
                       }}
                       aria-label={`ลบสติกเกอร์ ${tag.code}`}
-                      className={iconDangerButtonClass}
+                      className={buttonClass.iconDanger}
                     >
                       <DeleteIcon className="h-5 w-5" />
                     </button>
@@ -209,13 +204,12 @@ export function QrTagManager({
         </div>
       )}
 
-      <Modal
-        open={editing !== null}
-        title={editing === 'new' ? 'สร้างสติกเกอร์ QR' : 'แก้ไขสติกเกอร์ QR'}
-        onClose={() => setEditing(null)}
-        size="lg"
-      >
-        {editing !== null ? (
+      {editing !== null ? (
+        <Modal
+          title={editing === 'new' ? 'สร้างสติกเกอร์ QR' : 'แก้ไขสติกเกอร์ QR'}
+          onClose={() => setEditing(null)}
+        >
+          <DialogFocus />
           <QrTagForm
             key={editing === 'new' ? 'new' : editing.id}
             current={editing === 'new' ? null : editing}
@@ -228,19 +222,23 @@ export function QrTagManager({
               router.refresh();
             }}
           />
-        ) : null}
-      </Modal>
-      <ConfirmDeleteModal
-        open={deleting !== null}
-        title="ลบสติกเกอร์ QR"
-        itemName={deleting ? `${deleting.code} (${deleting.location})` : ''}
-        consequence="สติกเกอร์ที่ติดอยู่จะสแกนไม่ได้อีก ใบแจ้งซ่อมเดิมที่แจ้งผ่าน QR นี้ยังอยู่ครบ"
-        confirmLabel="ลบสติกเกอร์"
-        loading={busy}
-        error={error}
-        onConfirm={() => void remove()}
-        onClose={() => !busy && setDeleting(null)}
-      />
+        </Modal>
+      ) : null}
+      {deleting !== null ? (
+        <ConfirmDeleteModal
+          title="ลบสติกเกอร์ QR"
+          message={
+            <DeleteMessage
+              itemName={`${deleting.code} (${deleting.location})`}
+              consequence="สติกเกอร์ที่ติดอยู่จะสแกนไม่ได้อีก ใบแจ้งซ่อมเดิมที่แจ้งผ่าน QR นี้ยังอยู่ครบ"
+              busy={busy}
+              error={error}
+            />
+          }
+          onConfirm={() => void remove()}
+          onClose={() => !busy && setDeleting(null)}
+        />
+      ) : null}
     </>
   );
 }
@@ -409,10 +407,10 @@ function QrTagForm({
         </select>
       </FormField>
       <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onCancel} className={secondaryButtonClass} disabled={busy}>
+        <button type="button" onClick={onCancel} className={buttonClass.secondary} disabled={busy}>
           ยกเลิก
         </button>
-        <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+        <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
           บันทึก
         </LoadingButton>
       </div>

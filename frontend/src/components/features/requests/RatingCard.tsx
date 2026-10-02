@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import { cardClass, inputClass, primaryButtonClass, StarIcon } from '@/csmju';
+import { cardClass, inputClass } from '@/csmju';
+import { StarIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { LoadingButton } from '@/components/shared/LoadingButton';
 import { useToast } from '@/components/shared/Toast';
 import { api, ApiRequestError } from '@/lib/api';
@@ -105,7 +107,7 @@ export function RatingCard({ requestId }: { requestId: string }) {
           </p>
         ) : null}
         <div className="flex justify-end">
-          <LoadingButton type="submit" loading={busy} className={primaryButtonClass}>
+          <LoadingButton type="submit" loading={busy} className={buttonClass.primary}>
             บันทึกคะแนน
           </LoadingButton>
         </div>

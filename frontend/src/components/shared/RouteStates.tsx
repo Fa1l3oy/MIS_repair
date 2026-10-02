@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { ArrowBackIcon, secondaryButtonClass } from '@/csmju';
+import { ArrowBackIcon } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { EmptyState } from './EmptyState';
 import { PageSkeleton } from './Skeleton';
 
@@ -19,10 +20,11 @@ export function RouteNotFound({
   return (
     <div className="rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-sm">
       <EmptyState
+        heading="h1"
         title="ไม่พบข้อมูลที่คุณกำลังค้นหา"
         description="อาจถูกลบไปแล้วหรือลิงก์ไม่ถูกต้อง"
         action={
-          <Link href={backHref} className={secondaryButtonClass}>
+          <Link href={backHref} className={buttonClass.secondary}>
             <ArrowBackIcon className="h-4 w-4" />
             {backLabel}
           </Link>

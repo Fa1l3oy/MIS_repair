@@ -1,11 +1,15 @@
-import { TONE_DOT_CLASS, type StatusTone } from '@/csmju';
+import { TONE_STYLES, type StatusTone } from '@/csmju';
 import { formatDate, formatMonth, formatNumber } from '@/lib/format';
 
 /**
- * กราฟแบบ SVG ไม่พึ่งไลบรารี — palette ตาม ui-design-system.md ข้อ 3.8 (chart-1, chart-2 …)
+ * กราฟแบบ SVG ไม่พึ่งไลบรารี — palette ตาม ui-design-system.md ข้อ 3.8 ตามลำดับ
+ * (สีที่ 1 = primary-container · สีที่ 2 = sky-500 ของ Tailwind ซึ่งเป็นค่าเดียวกับในสเปค จึงไม่ต้องสร้าง token ใหม่)
  * ทุกกราฟมีตารางข้อมูลซ่อนไว้ให้ screen reader และชุดที่ 2 มีเส้นประกำกับเผื่อพิมพ์ขาวดำ
  */
 type Point = { period: string; created: number; completed: number };
+
+/** กว้างอย่างน้อยเท่านี้ (px) ให้ป้ายแกนอ่านออก — จอแคบกว่านี้เลื่อนดูในการ์ด */
+const MIN_CHART_WIDTH = 640;
 
 export function TrendChart({ points, granularity }: { points: Point[]; granularity: 'day' | 'month' }) {
   const width = 720;
@@ -30,7 +34,8 @@ export function TrendChart({ points, granularity }: { points: Point[]; granulari
       <div className="-mx-2 overflow-x-auto px-2">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="h-auto w-full min-w-[640px]"
+          className="h-auto w-full"
+          style={{ minWidth: MIN_CHART_WIDTH }}
           role="img"
           aria-label="กราฟจำนวนงานที่แจ้งเข้าและซ่อมเสร็จ"
         >
@@ -50,7 +55,7 @@ export function TrendChart({ points, granularity }: { points: Point[]; granulari
                   x={padding.left - 6}
                   y={y(value) + 4}
                   textAnchor="end"
-                  className="fill-on-surface-variant text-[13px] tabular-nums"
+                  className="fill-on-surface-variant text-caption tabular-nums"
                 >
                   {value}
                 </text>
@@ -67,7 +72,7 @@ export function TrendChart({ points, granularity }: { points: Point[]; granulari
                   width={bar}
                   height={Math.max(0, padding.top + plotH - y(point.created))}
                   rx={2}
-                  className="fill-chart-1"
+                  className="fill-primary-container"
                 >
                   <title>{`${label(point.period)}: แจ้งเข้า ${point.created}`}</title>
                 </rect>
@@ -77,7 +82,7 @@ export function TrendChart({ points, granularity }: { points: Point[]; granulari
                   width={bar}
                   height={Math.max(0, padding.top + plotH - y(point.completed))}
                   rx={2}
-                  className="fill-chart-2 stroke-on-surface/40"
+                  className="fill-sky-500 stroke-on-surface/40"
                   strokeDasharray="2 2"
                   strokeWidth={point.completed > 0 ? 0.8 : 0}
                 >
@@ -88,7 +93,7 @@ export function TrendChart({ points, granularity }: { points: Point[]; granulari
                     x={x}
                     y={height - 10}
                     textAnchor="middle"
-                    className="fill-on-surface-variant text-[13px]"
+                    className="fill-on-surface-variant text-caption"
                   >
                     {label(point.period)}
                   </text>
@@ -100,11 +105,11 @@ export function TrendChart({ points, granularity }: { points: Point[]; granulari
       </div>
       <figcaption className="flex flex-wrap gap-4 text-label-sm text-on-surface-variant">
         <span className="inline-flex items-center gap-2">
-          <span className="h-3 w-3 rounded-sm bg-chart-1" aria-hidden="true" /> แจ้งเข้า
+          <span className="h-3 w-3 rounded-sm bg-primary-container" aria-hidden="true" /> แจ้งเข้า
         </span>
         <span className="inline-flex items-center gap-2">
           <span
-            className="h-3 w-3 rounded-sm border border-dashed border-on-surface/40 bg-chart-2"
+            className="h-3 w-3 rounded-sm border border-dashed border-on-surface/40 bg-sky-500"
             aria-hidden="true"
           />{' '}
           ซ่อมเสร็จ
@@ -160,7 +165,7 @@ export function BarList({
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-surface-container" aria-hidden="true">
             <div
-              className={`h-full rounded-full ${item.tone ? TONE_DOT_CLASS[item.tone] : 'bg-chart-1'}`}
+              className={`h-full rounded-full ${item.tone ? TONE_STYLES[item.tone].dot : 'bg-primary-container'}`}
               style={{ width: `${Math.max(2, (item.value / max) * 100)}%` }}
             />
           </div>

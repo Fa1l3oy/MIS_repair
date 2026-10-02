@@ -2,7 +2,9 @@
 
 import Image from 'next/image';
 import { useEffect, useId, useRef, useState } from 'react';
-import { CameraIcon, CloseIcon, secondaryButtonClass } from '@/csmju';
+import { CloseIcon } from '@/csmju';
+import { CameraIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { prepareImage } from '@/lib/image-resize';
 
 export type PickedPhoto = { id: string; file: File; url: string };
@@ -108,7 +110,7 @@ export function PhotoPicker({
             onClick={() => input.current?.click()}
             disabled={busy}
             aria-describedby={`${inputId}-hint`}
-            className={`${secondaryButtonClass} h-24 w-24 flex-col border-dashed`}
+            className={`${buttonClass.secondary} h-24 w-24 flex-col border-dashed`}
           >
             <CameraIcon className="h-6 w-6" />
             <span className="text-label-sm">{busy ? 'กำลังเตรียม…' : 'เพิ่มรูป'}</span>

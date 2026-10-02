@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronRightIcon, ImageIcon, TONE_DOT_CLASS } from '@/csmju';
+import { TONE_STYLES } from '@/csmju';
+import { ChevronRightIcon, ImageIcon } from '@/components/shared/icons';
 import { formatRelative, placeText } from '@/lib/format';
 import { STATUS_TONE } from '@/lib/labels';
 import type { RepairRequestSummary } from '@/lib/types';
@@ -28,7 +29,7 @@ export function RequestList({
           >
             <span
               aria-hidden="true"
-              className={`absolute inset-y-3 left-0 w-1 rounded-r-full ${TONE_DOT_CLASS[STATUS_TONE[request.status]]}`}
+              className={`absolute inset-y-3 left-0 w-1 rounded-r-full ${TONE_STYLES[STATUS_TONE[request.status]].dot}`}
             />
             <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-container text-outline">
               {request.coverImageUrl ? (

@@ -1,64 +1,48 @@
-/**
- * โลโก้ CSMJU (ui-design-system.md ข้อ 14.1)
- * ไฟล์โลโก้จริงอยู่ใน csmju-core-hub/frontend/public/csmju-logo.png ซึ่งระบบนี้ยังเข้าถึงไม่ได้ —
- * ระหว่างนี้แสดงเป็นตัวอักษรตามสีแบรนด์ (ไม่ประดิษฐ์สัญลักษณ์ขึ้นเอง) และคง API ของ component เดิมไว้
- * เมื่อได้ไฟล์หรือ package แล้วให้แทนที่ไฟล์นี้ทั้งไฟล์
- */
-export function CsmjuLogo({
-  width = 120,
+import Image from "next/image";
+
+const LOGO_ALT = "โลโก้ สาขาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยแม่โจ้";
+
+/** Full logo is unreadable below this width (design-system.md §14.1). */
+const MIN_WIDTH = 120;
+
+export default function CsmjuLogo({
+  width = MIN_WIDTH,
   framed = false,
   decorative = false,
-  className = '',
+  priority = false,
+  className = "",
 }: {
+  /** Rendered width in px; clamped to the 120px minimum. */
   width?: number;
+  /** Wrap in a white frame — required on brand-gradient or other dark surfaces. */
   framed?: boolean;
+  /** Use when the system name is already shown as text next to the logo. */
   decorative?: boolean;
   priority?: boolean;
   className?: string;
 }) {
-  const size = Math.max(120, width);
-  const mark = (
-    <svg
-      viewBox="0 0 120 44"
-      width={size}
-      height={(size * 44) / 120}
-      role={decorative ? undefined : 'img'}
-      aria-label={decorative ? undefined : 'โลโก้ สาขาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยแม่โจ้'}
-      aria-hidden={decorative ? true : undefined}
-      className="h-auto max-w-full"
-    >
-      <text
-        x="0"
-        y="22"
-        className="fill-primary-container font-display"
-        fontSize="24"
-        fontWeight="800"
-        letterSpacing="1"
-      >
-        CSMJU
-      </text>
-      <text
-        x="1"
-        y="33"
-        className="fill-secondary font-display"
-        fontSize="7"
-        fontWeight="600"
-        letterSpacing="0.4"
-      >
-        COMPUTER SCIENCE
-      </text>
-      <text
-        x="1"
-        y="42"
-        className="fill-secondary font-display"
-        fontSize="7"
-        fontWeight="600"
-        letterSpacing="0.4"
-      >
-        MAEJO UNIVERSITY
-      </text>
-    </svg>
+  const renderWidth = Math.max(width, MIN_WIDTH);
+
+  const logo = (
+    <Image
+      src="/csmju-logo.png"
+      alt={decorative ? "" : LOGO_ALT}
+      width={240}
+      height={170}
+      priority={priority}
+      sizes={`${renderWidth}px`}
+      style={{ maxWidth: renderWidth }}
+      className={`h-auto w-full object-contain ${framed ? "" : className}`}
+    />
   );
-  if (!framed) return <span className={`inline-flex ${className}`}>{mark}</span>;
-  return <span className={`inline-flex rounded-xl bg-white p-4 shadow-sm ${className}`}>{mark}</span>;
+
+  if (!framed) return logo;
+
+  return (
+    <div
+      className={`flex justify-center rounded-xl bg-white p-4 shadow-sm ${className}`}
+    >
+      {logo}
+    </div>
+  );
 }

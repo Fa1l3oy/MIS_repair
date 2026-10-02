@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { cardClass, GroupIcon, PageHeader, secondaryButtonClass, Tabs } from '@/csmju';
+import { cardClass, GroupIcon, PageHeader } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { UsersTable } from '@/components/features/admin/UsersTable';
 import { UserSearch } from '@/components/features/admin/UserSearch';
 import { ApiFailure } from '@/components/shared/ApiFailure';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Pagination } from '@/components/shared/Pagination';
+import { RouteTabs } from '@/components/shared/RouteTabs';
 import { forwardQuery, serverApi } from '@/lib/server-api';
 import { getMe } from '@/lib/session';
 import type { Profile } from '@/lib/types';
@@ -47,10 +49,9 @@ export default async function UsersPage(props: PageProps<'/admin/users'>) {
       />
       <section className={cardClass} aria-label="รายการผู้ใช้">
         <div className="space-y-4 border-b border-outline-variant/40 px-4 pb-5 pt-2 md:px-6">
-          <Tabs
-            label="กรองตามบทบาท"
+          <RouteTabs
             active={role ?? 'all'}
-            items={Object.entries(ROLES).map(([key, label]) => ({ key, label, href: tabHref(key) }))}
+            tabs={Object.entries(ROLES).map(([id, label]) => ({ id, label, href: tabHref(id) }))}
           />
           <UserSearch />
         </div>
@@ -65,7 +66,7 @@ export default async function UsersPage(props: PageProps<'/admin/users'>) {
             }
             action={
               params.q || role ? (
-                <Link href="/admin/users" className={secondaryButtonClass}>
+                <Link href="/admin/users" className={buttonClass.secondary}>
                   ล้างตัวกรอง
                 </Link>
               ) : undefined

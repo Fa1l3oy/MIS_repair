@@ -35,3 +35,39 @@ owners:
 display_name: "ระบบแจ้งซ่อม"
 repo: github.com/CSMJU2030/csmju-repair
 status: proposed
+
+# ---- หน้าจอ (ui-design-system.md ข้อ 17.0, 19.2) ----
+# ช่วงเปลี่ยนผ่าน: ยังไม่มี package @csmju2030/design-system จึงยังไม่มี design_system_version
+# ของกลางคัดลอกจาก template ด้านล่างโดยไม่แก้ (frontend/src/csmju · app/globals.css · public/csmju-logo.png)
+ui:
+  template: csmju-core-hub/templates/csmju-subsystem-web@73ae729
+  ui_design_system: "1.3.0"
+  theme: light
+  nav:
+    - { label: "ภาพรวม", path: "/" }
+    - { label: "ใบแจ้งซ่อมของฉัน", path: "/requests" }
+    - { label: "คิวงานซ่อม", path: "/queue" }                  # ช่าง · ผู้ดูแล
+    - { label: "สถิติงานซ่อม", path: "/dashboard" }            # ช่าง · ผู้ดูแล
+    - { label: "การแจ้งเตือน", path: "/notifications" }
+    - { label: "ผู้ใช้และช่าง", path: "/admin/users" }         # ผู้ดูแล
+    - { label: "อาคาร", path: "/admin/buildings" }             # ผู้ดูแล
+    - { label: "หมวดหมู่งานซ่อม", path: "/admin/categories" }  # ผู้ดูแล
+    - { label: "สติกเกอร์ QR", path: "/admin/qr-tags" }        # ผู้ดูแล
+  # component ชั่วคราวที่ template ยังไม่มี — คำขอตามข้อ 17.4 อยู่ใน docs/design-system-requests.md (ยังไม่มีเลข issue)
+  local_components:
+    - { name: EmptyState, path: frontend/src/components/shared/EmptyState.tsx, request: R10 }
+    - { name: ErrorState, path: frontend/src/components/shared/ErrorState.tsx, request: R10 }
+    - { name: ForbiddenState, path: frontend/src/components/shared/ForbiddenState.tsx, request: R10 }
+    - { name: FormField, path: frontend/src/components/shared/FormField.tsx, request: R10 }
+    - { name: Toast, path: frontend/src/components/shared/Toast.tsx, request: R10 }
+    - { name: Skeleton, path: frontend/src/components/shared/Skeleton.tsx, request: R10 }
+    - { name: Pagination, path: frontend/src/components/shared/Pagination.tsx, request: R10 }
+    - { name: Avatar, path: frontend/src/components/shared/Avatar.tsx, request: R10 }
+    - { name: StatCard, path: frontend/src/components/features/StatCard.tsx, request: R10 }
+    - { name: Timeline, path: frontend/src/components/features/requests/Timeline.tsx, request: R10 }
+    - { name: LoadingButton, path: frontend/src/components/shared/LoadingButton.tsx, request: R11 }
+    - { name: DialogFocus, path: frontend/src/components/shared/DialogFocus.tsx, request: R6 }
+    - { name: DeleteMessage, path: frontend/src/components/shared/DeleteMessage.tsx, request: R6 }
+    - { name: RouteTabs, path: frontend/src/components/shared/RouteTabs.tsx, request: R8 }
+    - { name: icons, path: frontend/src/components/shared/icons.tsx, request: R9 }
+    - { name: ui, path: frontend/src/components/shared/ui.ts, request: R7 }

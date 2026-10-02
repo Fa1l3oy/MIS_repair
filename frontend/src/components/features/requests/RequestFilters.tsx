@@ -2,7 +2,8 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useId, useState, useTransition } from 'react';
-import { inputClass, SearchIcon, secondaryButtonClass } from '@/csmju';
+import { inputClass, SearchIcon } from '@/csmju';
+import { buttonClass } from '@/components/shared/ui';
 import { PRIORITIES, PRIORITY_LABEL, STATUSES, STATUS_LABEL } from '@/lib/labels';
 
 export type FilterOption = { value: string; label: string };
@@ -155,7 +156,7 @@ export function RequestFilters({
             const text = kept.toString();
             startTransition(() => router.replace(text ? `${pathname}?${text}` : pathname, { scroll: false }));
           }}
-          className={secondaryButtonClass}
+          className={buttonClass.secondary}
         >
           ล้างตัวกรอง
         </button>

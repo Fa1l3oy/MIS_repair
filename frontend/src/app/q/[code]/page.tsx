@@ -1,15 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import {
-  AddIcon,
-  cardClass,
-  InfoIcon,
-  LocationIcon,
-  PageHeader,
-  primaryButtonClass,
-  QrCodeIcon,
-  secondaryButtonClass,
-} from '@/csmju';
+import { AddIcon, cardClass, LocationIcon, PageHeader } from '@/csmju';
+import { InfoIcon, QrCodeIcon } from '@/components/shared/icons';
+import { buttonClass } from '@/components/shared/ui';
 import { RequestStatusBadge } from '@/components/features/requests/badges';
 import { ApiFailure } from '@/components/shared/ApiFailure';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -28,11 +21,12 @@ export default async function QrLandingPage(props: PageProps<'/q/[code]'>) {
   const notFound = (
     <div className={cardClass}>
       <EmptyState
+        heading="h1"
         icon={QrCodeIcon}
         title="ไม่พบสติกเกอร์ QR นี้"
         description="สติกเกอร์อาจถูกยกเลิกไปแล้ว แจ้งซ่อมได้ตามปกติโดยกรอกสถานที่เอง"
         action={
-          <Link href="/requests/new" className={primaryButtonClass}>
+          <Link href="/requests/new" className={buttonClass.primary}>
             <AddIcon className="h-4 w-4" />
             แจ้งซ่อม
           </Link>
@@ -49,16 +43,16 @@ export default async function QrLandingPage(props: PageProps<'/q/[code]'>) {
 
   return (
     <>
-      <PageHeader
-        eyebrow={
-          <span className="inline-flex items-center gap-1.5 text-label-md text-primary-container">
-            <QrCodeIcon className="h-4 w-4" />
-            สติกเกอร์ {tag.code}
-          </span>
-        }
-        title={tag.equipment ?? tag.location}
-        description={placeText(tag.building.name, tag.floor, tag.location)}
-      />
+      <div className="space-y-4">
+        <PageHeader
+          title={tag.equipment ?? tag.location}
+          description={placeText(tag.building.name, tag.floor, tag.location)}
+        />
+        <p className="fade-slide-up inline-flex items-center gap-1.5 text-label-md text-primary-container">
+          <QrCodeIcon className="h-4 w-4" />
+          สติกเกอร์ {tag.code}
+        </p>
+      </div>
       <section className={`${cardClass} space-y-6 p-6`}>
         <div className="flex items-start gap-3">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-container text-primary-container">
@@ -111,10 +105,10 @@ export default async function QrLandingPage(props: PageProps<'/q/[code]'>) {
         )}
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <Link href="/" className={secondaryButtonClass}>
+          <Link href="/" className={buttonClass.secondary}>
             กลับหน้าแรก
           </Link>
-          <Link href={`/requests/new?qr=${tag.id}`} className={primaryButtonClass}>
+          <Link href={`/requests/new?qr=${tag.id}`} className={buttonClass.primary}>
             <AddIcon className="h-4 w-4" />
             {tag.openRequests.length > 0 ? 'แจ้งปัญหาอื่นที่จุดนี้' : 'แจ้งซ่อมที่จุดนี้'}
           </Link>
